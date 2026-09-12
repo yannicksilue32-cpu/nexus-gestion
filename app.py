@@ -64,6 +64,7 @@ from auth import (
     current_user,
     is_logged_in,
     is_admin,
+    normalize_username,
 )
 
 app = Flask(
@@ -2796,7 +2797,7 @@ def login():
         return redirect(url_for("dashboard"))
 
     if request.method == "POST":
-        username = request.form.get("username", "").strip().lower()
+        username = normalize_username(request.form.get("username", ""))
         password = request.form.get("password", "")
         next_page = request.form.get("next") or request.args.get("next")
 
@@ -2854,7 +2855,7 @@ def setup_admin():
 
     if request.method == "POST":
         full_name = request.form.get("full_name", "").strip()
-        username = request.form.get("username", "").strip().lower()
+        username = normalize_username(request.form.get("username", ""))
         password = request.form.get("password", "")
         password_confirm = request.form.get("password_confirm", "")
 
@@ -2900,9 +2901,10 @@ def setup_admin():
 
 @app.route("/users")
 def users():
-    if not is_admin():
-        flash("Accès réservé aux administrateurs.")
-        return redirect(url_for("dashboard"))
+    """Liste des comptes. Accessible uniquement aux administrateurs."""
+    denied = admin_required()
+    if denied:
+        return denied
 
     connection = get_db_connection()
     try:
@@ -2911,7 +2913,8 @@ def users():
             SELECT id, username, full_name, role, active, created_at, last_login
             FROM users
             ORDER BY CASE WHEN role = 'admin' THEN 0 ELSE 1 END,
-                     full_name COLLATE NOCASE
+                     full_name COLLATE NOCASE,
+                     username COLLATE NOCASE
             """
         ).fetchall()
     finally:
@@ -2922,27 +2925,45 @@ def users():
 
 @app.route("/users/create", methods=["GET", "POST"])
 def create_user():
-    if not is_admin():
-        flash("Accès réservé aux administrateurs.")
-        return redirect(url_for("dashboard"))
+    """Crée un compte utilisateur indépendant."""
+    denied = admin_required()
+    if denied:
+        return denied
 
     if request.method == "POST":
-        full_name = request.form.get("full_name", "").strip()
-        username = request.form.get("username", "").strip().lower()
+        full_name = safe_text(request.form.get("full_name"))
+        username = normalize_username(request.form.get("username", ""))
         password = request.form.get("password", "")
-        role = request.form.get("role", "employee")
+        password_confirm = request.form.get("password_confirm", "")
+        role = safe_text(request.form.get("role", "employee")).lower()
+
+        if not full_name:
+            flash("Le nom complet est obligatoire.", "error")
+            return redirect(url_for("create_user"))
+
+        if len(username) < 3 or len(username) > 50:
+            flash("Le nom d'utilisateur doit contenir entre 3 et 50 caractères.", "error")
+            return redirect(url_for("create_user"))
+
+        if not username.replace("_", "").replace("-", "").isalnum():
+            flash("Le nom d'utilisateur ne peut contenir que des lettres, chiffres, _ ou -.", "error")
+            return redirect(url_for("create_user"))
+
+        if len(password) < 8:
+            flash("Le mot de passe doit contenir au moins 8 caractères.", "error")
+            return redirect(url_for("create_user"))
+
+        if password != password_confirm:
+            flash("Les mots de passe ne correspondent pas.", "error")
+            return redirect(url_for("create_user"))
 
         if role not in ("admin", "employee"):
             role = "employee"
 
-        if not full_name or len(username) < 3 or len(password) < 8:
-            flash("Nom complet, utilisateur (3+) et mot de passe (8+) sont obligatoires.")
-            return redirect(url_for("create_user"))
-
         connection = get_db_connection()
         try:
             if get_user_by_username(connection, username):
-                flash("Ce nom d'utilisateur existe déjà.")
+                flash("Ce nom d'utilisateur existe déjà.", "error")
                 return redirect(url_for("create_user"))
 
             connection.execute(
@@ -2954,10 +2975,18 @@ def create_user():
                 (username, hash_password(password), full_name, role, now_datetime()),
             )
             connection.commit()
+        except DB_INTEGRITY_ERROR:
+            connection.rollback()
+            flash("Ce nom d'utilisateur existe déjà.", "error")
+            return redirect(url_for("create_user"))
+        except DB_ERROR as error:
+            connection.rollback()
+            flash(f"Erreur lors de la création du compte : {error}", "error")
+            return redirect(url_for("create_user"))
         finally:
             connection.close()
 
-        flash("Utilisateur créé avec succès.")
+        flash(f"Le compte « {full_name} » a été créé avec succès.", "success")
         return redirect(url_for("users"))
 
     return render_template("create_user.html")
@@ -2965,23 +2994,24 @@ def create_user():
 
 @app.route("/users/<int:user_id>/toggle", methods=["POST"])
 def toggle_user(user_id):
-    if not is_admin():
-        flash("Accès réservé aux administrateurs.")
-        return redirect(url_for("dashboard"))
+    """Active ou désactive un autre compte."""
+    denied = admin_required()
+    if denied:
+        return denied
 
     if session.get("user_id") == user_id:
-        flash("Vous ne pouvez pas désactiver votre propre compte.")
+        flash("Vous ne pouvez pas désactiver votre propre compte.", "error")
         return redirect(url_for("users"))
 
     connection = get_db_connection()
     try:
         user = get_user_by_id(connection, user_id)
         if user is None:
-            flash("Utilisateur introuvable.")
+            flash("Utilisateur introuvable.", "error")
             return redirect(url_for("users"))
 
         if user["role"] == "admin" and bool(user["active"]) and count_admins(connection) <= 1:
-            flash("Impossible de désactiver le dernier administrateur actif.")
+            flash("Impossible de désactiver le dernier administrateur actif.", "error")
             return redirect(url_for("users"))
 
         new_status = 0 if bool(user["active"]) else 1
@@ -2990,40 +3020,51 @@ def toggle_user(user_id):
             (new_status, user_id),
         )
         connection.commit()
+
+        flash(
+            f"Le compte « {user['full_name']} » est maintenant {'actif' if new_status else 'désactivé'}.",
+            "success",
+        )
+    except DB_ERROR as error:
+        connection.rollback()
+        flash(f"Erreur : {error}", "error")
     finally:
         connection.close()
 
-    flash("Statut de l'utilisateur mis à jour.")
     return redirect(url_for("users"))
 
 
 @app.route("/users/<int:user_id>/delete", methods=["POST"])
 def delete_user(user_id):
-    if not is_admin():
-        flash("Accès réservé aux administrateurs.")
-        return redirect(url_for("dashboard"))
+    """Supprime un compte sans pouvoir supprimer le compte courant."""
+    denied = admin_required()
+    if denied:
+        return denied
 
     if session.get("user_id") == user_id:
-        flash("Vous ne pouvez pas supprimer votre propre compte.")
+        flash("Vous ne pouvez pas supprimer votre propre compte.", "error")
         return redirect(url_for("users"))
 
     connection = get_db_connection()
     try:
         user = get_user_by_id(connection, user_id)
         if user is None:
-            flash("Utilisateur introuvable.")
+            flash("Utilisateur introuvable.", "error")
             return redirect(url_for("users"))
 
         if user["role"] == "admin" and bool(user["active"]) and count_admins(connection) <= 1:
-            flash("Impossible de supprimer le dernier administrateur actif.")
+            flash("Impossible de supprimer le dernier administrateur actif.", "error")
             return redirect(url_for("users"))
 
         connection.execute("DELETE FROM users WHERE id = ?", (user_id,))
         connection.commit()
+    except DB_ERROR as error:
+        connection.rollback()
+        flash(f"Erreur lors de la suppression : {error}", "error")
     finally:
         connection.close()
 
-    flash("Utilisateur supprimé.")
+    flash("Utilisateur supprimé.", "success")
     return redirect(url_for("users"))
 
 
