@@ -1,150 +1,1232 @@
-"""Nexus Simulateur Business - moteur de simulation."""
+{% extends "base.html" %}
 
-def _float(value, default=0.0):
-    try:
-        if value is None or value == "":
-            return default
-        return float(str(value).strip().replace(" ", "").replace(",", "."))
-    except (TypeError, ValueError):
-        return default
+{% block title %}Nexus Simulateur Business{% endblock %}
 
+{% block page_title %}Nexus Simulateur Business{% endblock %}
 
-def _pct(value, default=0.0):
-    return min(100.0, max(0.0, _float(value, default)))
+{% block page_subtitle %}
+Analysez la rentabilité, le risque et la trajectoire financière d'un projet.
+{% endblock %}
 
+{% block content %}
 
-def simulate_business(capital, selling_price, purchase_cost, monthly_sales,
-                      fixed_costs=0, variable_cost_percent=0, employees=0,
-                      salary_per_employee=0, growth_rate=0, duration_months=12):
-    capital = max(0.0, _float(capital))
-    selling_price = max(0.0, _float(selling_price))
-    purchase_cost = max(0.0, _float(purchase_cost))
-    monthly_sales = max(0.0, _float(monthly_sales))
-    fixed_costs = max(0.0, _float(fixed_costs))
-    variable_cost_percent = _pct(variable_cost_percent)
-    employees = max(0, int(_float(employees)))
-    salary_per_employee = max(0.0, _float(salary_per_employee))
-    growth_rate = _float(growth_rate)
-    duration_months = max(1, min(120, int(_float(duration_months, 12))))
-
-    errors = []
-    if capital <= 0: errors.append("Le capital disponible doit être supérieur à 0.")
-    if selling_price <= 0: errors.append("Le prix de vente doit être supérieur à 0.")
-    if monthly_sales <= 0: errors.append("Les ventes mensuelles prévues doivent être supérieures à 0.")
-    if selling_price <= purchase_cost:
-        errors.append("Le prix de vente doit être supérieur au coût d'achat.")
-    if errors:
-        return {"success": False, "errors": errors}
-
-    salary_cost = employees * salary_per_employee
-    fixed_total = fixed_costs + salary_cost
-    variable_unit = purchase_cost + selling_price * variable_cost_percent / 100
-    contribution = selling_price - variable_unit
-    revenue = selling_price * monthly_sales
-    total_cost = monthly_sales * variable_unit + fixed_total
-    profit = revenue - total_cost
-    margin = (contribution / selling_price * 100) if selling_price else 0
-    net_margin = (profit / revenue * 100) if revenue else 0
-
-    break_even_units = fixed_total / contribution if contribution > 0 else None
-    break_even_revenue = break_even_units * selling_price if break_even_units is not None else None
-    payback = capital / profit if profit > 0 else None
-    annual_profit = profit * 12
-    annual_roi = annual_profit / capital * 100 if capital else 0
-
-    projection = []
-    sales = monthly_sales
-    cumulative_profit = 0.0
-    cash = capital
-    for month in range(1, duration_months + 1):
-        if month > 1:
-            sales *= 1 + growth_rate / 100
-        sales = max(0.0, sales)
-        m_revenue = selling_price * sales
-        m_cost = sales * variable_unit + fixed_total
-        m_profit = m_revenue - m_cost
-        cumulative_profit += m_profit
-        cash += m_profit
-        projection.append({
-            "month": month, "sales": round(sales, 2),
-            "revenue": round(m_revenue, 2), "cost": round(m_cost, 2),
-            "profit": round(m_profit, 2),
-            "cumulative_profit": round(cumulative_profit, 2),
-            "cash": round(cash, 2),
-        })
-
-    total_revenue = sum(x["revenue"] for x in projection)
-    total_cost = sum(x["cost"] for x in projection)
-    total_profit = sum(x["profit"] for x in projection)
-    projected_roi = total_profit / capital * 100 if capital else 0
-
-    scenarios = {}
-    for name, factor in (("pessimiste", .75), ("realiste", 1.0), ("optimiste", 1.25)):
-        s = monthly_sales * factor
-        r = selling_price * s
-        p = r - s * variable_unit - fixed_total
-        scenarios[name] = {
-            "monthly_sales": round(s, 2), "monthly_revenue": round(r, 2),
-            "monthly_profit": round(p, 2), "annual_profit": round(p * 12, 2)
-        }
-
-    if profit <= 0:
-        status, risk, score = "NON RENTABLE", "ÉLEVÉ", 25
-    elif payback and payback <= 6:
-        status, risk, score = "TRÈS RENTABLE", "FAIBLE", 90
-    elif payback and payback <= duration_months:
-        status, risk, score = "RENTABLE", "FAIBLE À MOYEN", 78
-    else:
-        status, risk, score = "RENTABLE MAIS LENT", "MOYEN", 60
-    if margin >= 40: score += 5
-    elif margin < 15: score -= 10
-    if projected_roi >= 100: score += 5
-    elif projected_roi < 20: score -= 10
-    score = max(0, min(100, score))
-
-    recommendations = []
-    if profit <= 0:
-        recommendations.append("Le modèle actuel n'est pas rentable : augmentez la marge, réduisez les coûts ou augmentez les ventes.")
-    if margin < 20:
-        recommendations.append("La marge commerciale est faible : étudiez le prix de vente et le coût d'achat.")
-    elif margin >= 40:
-        recommendations.append("La marge commerciale est intéressante.")
-    if payback is not None:
-        recommendations.append("Le capital initial est récupéré rapidement." if payback <= 6 else "Le délai de récupération du capital doit être surveillé.")
-    if growth_rate != 0:
-        recommendations.append(f"La projection intègre une variation mensuelle des ventes de {growth_rate:.1f}%.")
-    if employees:
-        recommendations.append(f"Le coût salarial simulé est de {salary_cost:,.0f} par mois.")
-    if not recommendations:
-        recommendations.append("La structure financière simulée est cohérente.")
-
-    return {
-        "success": True,
-        "inputs": {"capital": capital, "selling_price": selling_price, "purchase_cost": purchase_cost,
-                   "monthly_sales": monthly_sales, "fixed_costs": fixed_costs,
-                   "variable_cost_percent": variable_cost_percent, "employees": employees,
-                   "salary_per_employee": salary_per_employee, "growth_rate": growth_rate,
-                   "duration_months": duration_months},
-        "monthly": {"revenue": round(revenue, 2), "total_cost": round(total_cost, 2),
-                     "profit": round(profit, 2), "margin_rate": round(margin, 2),
-                     "net_margin_rate": round(net_margin, 2), "salary_cost": round(salary_cost, 2)},
-        "break_even": {"units": round(break_even_units, 2) if break_even_units is not None else None,
-                       "revenue": round(break_even_revenue, 2) if break_even_revenue is not None else None},
-        "investment": {"payback_months": round(payback, 2) if payback is not None else None,
-                        "annual_profit": round(annual_profit, 2), "annual_roi": round(annual_roi, 2)},
-        "simulation": {"duration_months": duration_months, "total_revenue": round(total_revenue, 2),
-                        "total_cost": round(total_cost, 2), "total_profit": round(total_profit, 2),
-                        "projected_roi": round(projected_roi, 2), "ending_cash": round(projection[-1]["cash"], 2)},
-        "projection": projection, "scenarios": scenarios,
-        "analysis": {"status": status, "risk": risk, "score": int(score), "recommendations": recommendations}
+<style>
+    .ns-page {
+        max-width: 1500px;
+        margin: 0 auto;
     }
 
+    .ns-hero {
+        padding: 28px;
+        margin-bottom: 22px;
+        border: 1px solid #dbe5f1;
+        border-radius: 22px;
+        background: linear-gradient(135deg, #ffffff, #eef5ff);
+        box-shadow: 0 10px 30px rgba(15, 23, 42, .06);
+    }
 
-def build_business_report(result):
-    if not result.get("success"):
-        return "Simulation impossible : données invalides."
-    m, i, s, a = result["monthly"], result["investment"], result["simulation"], result["analysis"]
-    return (f"RAPPORT NEXUS SIMULATEUR BUSINESS\n\nStatut : {a['status']}\nRisque : {a['risk']}\n"
-            f"Score Nexus : {a['score']}/100\nCA mensuel : {m['revenue']:,.0f}\n"
-            f"Bénéfice mensuel : {m['profit']:,.0f}\nMarge : {m['margin_rate']:.1f}%\n"
-            f"ROI annuel estimé : {i['annual_roi']:.1f}%\nBénéfice simulé : {s['total_profit']:,.0f}\n")
+    .ns-eyebrow {
+        margin-bottom: 8px;
+        color: #2563eb;
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    .ns-hero h1 {
+        margin: 0;
+        color: #111827;
+        font-size: 31px;
+        font-weight: 900;
+    }
+
+    .ns-hero p {
+        max-width: 850px;
+        margin: 10px 0 0;
+        color: #6b7280;
+        font-size: 14px;
+        line-height: 1.7;
+    }
+
+    .ns-layout {
+        display: grid;
+        grid-template-columns: 390px minmax(0, 1fr);
+        gap: 22px;
+        align-items: start;
+    }
+
+    .ns-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 20px;
+        padding: 22px;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, .06);
+    }
+
+    .ns-card-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .ns-card-head h2,
+    .ns-section h3 {
+        margin: 0;
+        color: #111827;
+        font-weight: 900;
+    }
+
+    .ns-card-head h2 {
+        font-size: 18px;
+    }
+
+    .ns-card-head p {
+        margin: 6px 0 0;
+        color: #6b7280;
+        font-size: 12px;
+        line-height: 1.6;
+    }
+
+    .ns-icon {
+        width: 42px;
+        height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        border-radius: 12px;
+        background: #eff6ff;
+        font-size: 19px;
+    }
+
+    .ns-presets {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+        margin-bottom: 18px;
+    }
+
+    .ns-preset {
+        padding: 7px 10px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        background: #fff;
+        color: #374151;
+        font-size: 10px;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+    .ns-preset:hover {
+        border-color: #bfdbfe;
+        background: #eff6ff;
+        color: #1d4ed8;
+    }
+
+    .ns-section {
+        margin-bottom: 20px;
+    }
+
+    .ns-section-label {
+        margin-bottom: 10px;
+        color: #374151;
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: .5px;
+        text-transform: uppercase;
+    }
+
+    .ns-fields {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .ns-field.full {
+        grid-column: 1 / -1;
+    }
+
+    .ns-field label {
+        display: block;
+        margin-bottom: 6px;
+        color: #374151;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .ns-field input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 10px;
+        background: #fff;
+        color: #111827;
+        font-size: 13px;
+        font-weight: 600;
+        outline: none;
+    }
+
+    .ns-field input:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, .10);
+    }
+
+    .ns-help {
+        display: block;
+        margin-top: 5px;
+        color: #9ca3af;
+        font-size: 10px;
+        line-height: 1.4;
+    }
+
+    .ns-submit {
+        width: 100%;
+        padding: 14px 16px;
+        border: 0;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #111827, #1f2937);
+        color: #fff;
+        font-size: 14px;
+        font-weight: 900;
+        cursor: pointer;
+    }
+
+    .ns-submit:disabled {
+        cursor: wait;
+        opacity: .75;
+    }
+
+    .ns-live {
+        margin-top: 18px;
+        padding: 15px;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        background: #f8fafc;
+    }
+
+    .ns-live-title {
+        margin-bottom: 10px;
+        color: #374151;
+        font-size: 10px;
+        font-weight: 900;
+        text-transform: uppercase;
+    }
+
+    .ns-live-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    .ns-live-item {
+        padding: 10px;
+        border: 1px solid #edf0f4;
+        border-radius: 9px;
+        background: #fff;
+    }
+
+    .ns-live-label {
+        color: #9ca3af;
+        font-size: 9px;
+    }
+
+    .ns-live-value {
+        margin-top: 4px;
+        color: #111827;
+        font-size: 13px;
+        font-weight: 900;
+    }
+
+    .ns-results-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 18px;
+    }
+
+    .ns-results-head h2 {
+        margin: 0;
+        font-size: 19px;
+        font-weight: 900;
+    }
+
+    .ns-muted {
+        margin-top: 5px;
+        color: #6b7280;
+        font-size: 11px;
+    }
+
+    .ns-score-pill {
+        padding: 8px 11px;
+        border: 1px solid #e5e7eb;
+        border-radius: 999px;
+        background: #f8fafc;
+        color: #374151;
+        font-size: 10px;
+        font-weight: 900;
+        white-space: nowrap;
+    }
+
+    .ns-kpis {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 11px;
+    }
+
+    .ns-kpi {
+        padding: 16px;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        background: linear-gradient(180deg, #fff, #f8fafc);
+    }
+
+    .ns-kpi-label {
+        color: #6b7280;
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+    }
+
+    .ns-kpi-value {
+        margin-top: 6px;
+        color: #111827;
+        font-size: 22px;
+        font-weight: 900;
+    }
+
+    .positive {
+        color: #15803d !important;
+    }
+
+    .negative {
+        color: #dc2626 !important;
+    }
+
+    .ns-unit {
+        display: block;
+        margin-top: 4px;
+        color: #9ca3af;
+        font-size: 9px;
+    }
+
+    .ns-analysis {
+        margin-top: 18px;
+        padding: 18px;
+        border: 1px solid #e5e7eb;
+        border-radius: 15px;
+        background: #f8fafc;
+    }
+
+    .ns-analysis-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        align-items: center;
+    }
+
+    .ns-status {
+        font-size: 20px;
+        font-weight: 900;
+    }
+
+    .ns-risk {
+        display: inline-flex;
+        margin-top: 7px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: #eef2f7;
+        color: #374151;
+        font-size: 10px;
+        font-weight: 900;
+    }
+
+    .ns-score {
+        font-size: 29px;
+        font-weight: 900;
+        white-space: nowrap;
+    }
+
+    .ns-score-bar {
+        height: 9px;
+        margin-top: 14px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: #e5e7eb;
+    }
+
+    .ns-score-fill {
+        width: 0;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #ef4444, #f59e0b, #22c55e);
+        transition: width .5s ease;
+    }
+
+    .ns-recommendations {
+        margin-top: 16px;
+    }
+
+    .ns-rec-title {
+        margin-bottom: 9px;
+        font-size: 12px;
+        font-weight: 900;
+    }
+
+    .ns-rec {
+        margin-bottom: 7px;
+        padding: 10px 12px;
+        border-left: 4px solid #4f46e5;
+        border-radius: 8px;
+        background: #fff;
+        color: #374151;
+        font-size: 11px;
+        line-height: 1.5;
+    }
+
+    .ns-subsection {
+        margin-top: 22px;
+    }
+
+    .ns-subsection-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+
+    .ns-subsection-head h3 {
+        font-size: 16px;
+    }
+
+    .ns-subsection-note {
+        color: #9ca3af;
+        font-size: 10px;
+    }
+
+    .ns-financial-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .ns-financial {
+        padding: 13px;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        background: #fff;
+    }
+
+    .ns-financial-label {
+        color: #6b7280;
+        font-size: 10px;
+    }
+
+    .ns-financial-value {
+        margin-top: 5px;
+        color: #111827;
+        font-size: 17px;
+        font-weight: 900;
+    }
+
+    .ns-financial-note {
+        margin-top: 4px;
+        color: #9ca3af;
+        font-size: 9px;
+    }
+
+    .ns-scenarios {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .ns-scenario {
+        padding: 15px;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        background: linear-gradient(180deg, #fff, #f8fafc);
+    }
+
+    .ns-scenario-title {
+        margin-bottom: 9px;
+        font-size: 14px;
+        font-weight: 900;
+    }
+
+    .ns-scenario-profit {
+        margin-bottom: 10px;
+        font-size: 20px;
+        font-weight: 900;
+    }
+
+    .ns-scenario-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 7px 0;
+        border-bottom: 1px solid #edf0f4;
+        font-size: 10px;
+    }
+
+    .ns-scenario-row:last-child {
+        border-bottom: 0;
+    }
+
+    .ns-scenario-row span {
+        color: #6b7280;
+    }
+
+    .ns-scenario-row strong {
+        color: #111827;
+    }
+
+    .ns-chart {
+        padding: 14px;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        background: #fff;
+    }
+
+    .ns-bars {
+        display: flex;
+        align-items: flex-end;
+        gap: 4px;
+        height: 150px;
+    }
+
+    .ns-bar-wrap {
+        flex: 1;
+        height: 100%;
+        display: flex;
+        align-items: flex-end;
+    }
+
+    .ns-bar {
+        width: 100%;
+        min-height: 2px;
+        border-radius: 5px 5px 2px 2px;
+        background: linear-gradient(180deg, #60a5fa, #2563eb);
+    }
+
+    .ns-chart-legend {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 7px;
+        color: #9ca3af;
+        font-size: 9px;
+    }
+
+    .ns-table-wrap {
+        overflow-x: auto;
+        border: 1px solid #e5e7eb;
+        border-radius: 13px;
+    }
+
+    .ns-table {
+        width: 100%;
+        min-width: 760px;
+        border-collapse: collapse;
+        font-size: 10px;
+    }
+
+    .ns-table th,
+    .ns-table td {
+        padding: 10px;
+        border-bottom: 1px solid #edf0f4;
+        text-align: right;
+        white-space: nowrap;
+    }
+
+    .ns-table th {
+        background: #f8fafc;
+        color: #6b7280;
+        font-size: 9px;
+        text-transform: uppercase;
+    }
+
+    .ns-table th:first-child,
+    .ns-table td:first-child {
+        text-align: left;
+    }
+
+    .ns-table tr:last-child td {
+        border-bottom: 0;
+    }
+
+    .ns-empty {
+        min-height: 560px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .ns-empty-icon {
+        width: 84px;
+        height: 84px;
+        margin: 0 auto 17px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 22px;
+        background: #eff6ff;
+        font-size: 40px;
+    }
+
+    .ns-empty h2 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 900;
+    }
+
+    .ns-empty p {
+        max-width: 460px;
+        margin: 9px auto 0;
+        color: #6b7280;
+        font-size: 12px;
+        line-height: 1.7;
+    }
+
+    .ns-error {
+        padding: 15px;
+        border: 1px solid #fecaca;
+        border-left: 4px solid #dc2626;
+        border-radius: 11px;
+        background: #fff7f7;
+        color: #991b1b;
+        font-size: 12px;
+    }
+
+    .ns-error ul {
+        margin: 8px 0 0;
+        padding-left: 18px;
+    }
+
+    @media (max-width: 1250px) {
+        .ns-layout {
+            grid-template-columns: 350px minmax(0, 1fr);
+        }
+
+        .ns-kpis,
+        .ns-financial-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 950px) {
+        .ns-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 680px) {
+        .ns-kpis,
+        .ns-financial-grid,
+        .ns-scenarios,
+        .ns-fields {
+            grid-template-columns: 1fr;
+        }
+
+        .ns-field.full {
+            grid-column: auto;
+        }
+
+        .ns-hero {
+            padding: 20px;
+        }
+
+        .ns-hero h1 {
+            font-size: 25px;
+        }
+    }
+</style>
+
+<div class="ns-page">
+
+    <section class="ns-hero">
+        <div class="ns-eyebrow">📊 Module décisionnel Nexus</div>
+        <h1>Nexus Simulateur Business</h1>
+        <p>
+            Testez un projet avant d'investir : rentabilité mensuelle,
+            seuil de rentabilité, retour sur investissement, scénarios
+            pessimiste/réaliste/optimiste et trajectoire de trésorerie.
+        </p>
+    </section>
+
+    <div class="ns-layout">
+
+        <div class="ns-card">
+            <div class="ns-card-head">
+                <div>
+                    <h2>Paramètres du projet</h2>
+                    <p>Renseignez vos hypothèses économiques.</p>
+                </div>
+                <div class="ns-icon">⚙️</div>
+            </div>
+
+            <div class="ns-presets">
+                <button class="ns-preset" type="button" onclick="setPreset('commerce')">Commerce</button>
+                <button class="ns-preset" type="button" onclick="setPreset('petit')">Petit projet</button>
+                <button class="ns-preset" type="button" onclick="setPreset('croissance')">Croissance</button>
+                <button class="ns-preset" type="button" onclick="setPreset('service')">Service</button>
+            </div>
+
+            <form method="POST" action="{{ url_for('nexus_simulateur') }}" id="nexusSimulatorForm">
+
+                <div class="ns-section">
+                    <div class="ns-section-label">💰 Investissement</div>
+                    <div class="ns-fields">
+                        <div class="ns-field full">
+                            <label for="capital">Capital disponible</label>
+                            <input id="capital" name="capital" type="number" min="0" step="0.01" required value="{{ request.form.get('capital', '500000') }}">
+                            <span class="ns-help">Capital initial disponible pour le projet.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ns-section">
+                    <div class="ns-section-label">🛒 Ventes & prix</div>
+                    <div class="ns-fields">
+                        <div class="ns-field">
+                            <label for="selling_price">Prix de vente unitaire</label>
+                            <input id="selling_price" name="selling_price" type="number" min="0" step="0.01" required value="{{ request.form.get('selling_price', '5000') }}">
+                        </div>
+                        <div class="ns-field">
+                            <label for="purchase_cost">Coût d'achat / production</label>
+                            <input id="purchase_cost" name="purchase_cost" type="number" min="0" step="0.01" required value="{{ request.form.get('purchase_cost', '2500') }}">
+                        </div>
+                        <div class="ns-field full">
+                            <label for="monthly_sales">Ventes prévues par mois</label>
+                            <input id="monthly_sales" name="monthly_sales" type="number" min="1" step="1" required value="{{ request.form.get('monthly_sales', '100') }}">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ns-section">
+                    <div class="ns-section-label">🧾 Charges</div>
+                    <div class="ns-fields">
+                        <div class="ns-field">
+                            <label for="fixed_costs">Charges fixes / mois</label>
+                            <input id="fixed_costs" name="fixed_costs" type="number" min="0" step="0.01" value="{{ request.form.get('fixed_costs', '50000') }}">
+                        </div>
+                        <div class="ns-field">
+                            <label for="variable_cost_percent">Charges variables (%)</label>
+                            <input id="variable_cost_percent" name="variable_cost_percent" type="number" min="0" max="99.99" step="0.1" value="{{ request.form.get('variable_cost_percent', '5') }}">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ns-section">
+                    <div class="ns-section-label">👥 Ressources humaines</div>
+                    <div class="ns-fields">
+                        <div class="ns-field">
+                            <label for="employees">Nombre d'employés</label>
+                            <input id="employees" name="employees" type="number" min="0" step="1" value="{{ request.form.get('employees', '0') }}">
+                        </div>
+                        <div class="ns-field">
+                            <label for="salary_per_employee">Salaire moyen / employé</label>
+                            <input id="salary_per_employee" name="salary_per_employee" type="number" min="0" step="0.01" value="{{ request.form.get('salary_per_employee', '0') }}">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ns-section">
+                    <div class="ns-section-label">🚀 Croissance & horizon</div>
+                    <div class="ns-fields">
+                        <div class="ns-field">
+                            <label for="growth_rate">Croissance mensuelle (%)</label>
+                            <input id="growth_rate" name="growth_rate" type="number" min="-100" step="0.1" value="{{ request.form.get('growth_rate', '0') }}">
+                            <span class="ns-help">5 = +5 % de ventes chaque mois.</span>
+                        </div>
+                        <div class="ns-field">
+                            <label for="duration_months">Durée de simulation</label>
+                            <input id="duration_months" name="duration_months" type="number" min="1" max="120" step="1" required value="{{ request.form.get('duration_months', '12') }}">
+                        </div>
+                    </div>
+                </div>
+
+                <button class="ns-submit" id="simulateButton" type="submit">
+                    🚀 Lancer la simulation
+                </button>
+            </form>
+
+            <div class="ns-live">
+                <div class="ns-live-title">Prévisualisation instantanée</div>
+                <div class="ns-live-grid">
+                    <div class="ns-live-item">
+                        <div class="ns-live-label">CA mensuel</div>
+                        <div class="ns-live-value" id="liveRevenue">0 FCFA</div>
+                    </div>
+                    <div class="ns-live-item">
+                        <div class="ns-live-label">Marge commerciale</div>
+                        <div class="ns-live-value" id="liveMargin">0 %</div>
+                    </div>
+                    <div class="ns-live-item">
+                        <div class="ns-live-label">Bénéfice mensuel</div>
+                        <div class="ns-live-value" id="liveProfit">0 FCFA</div>
+                    </div>
+                    <div class="ns-live-item">
+                        <div class="ns-live-label">Seuil estimé</div>
+                        <div class="ns-live-value" id="liveBreakEven">—</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="ns-results">
+            {% if result is defined and result %}
+
+                {% if not result.success %}
+                    <div class="ns-card">
+                        <div class="ns-error">
+                            <strong>⚠️ Impossible de lancer la simulation</strong>
+                            <ul>
+                                {% for error in result.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                {% else %}
+
+                    <div class="ns-card">
+                        <div class="ns-results-head">
+                            <div>
+                                <h2>Résultats de la simulation</h2>
+                                <div class="ns-muted">Projection calculée à partir de vos hypothèses.</div>
+                            </div>
+                            <div class="ns-score-pill">🧠 Score Nexus : {{ result.analysis.score }}/100</div>
+                        </div>
+
+                        <div class="ns-kpis">
+                            <div class="ns-kpi">
+                                <div class="ns-kpi-label">CA mensuel</div>
+                                <div class="ns-kpi-value">{{ "{:,.0f}".format(result.monthly.revenue).replace(",", " ") }}</div>
+                                <span class="ns-unit">FCFA</span>
+                            </div>
+                            <div class="ns-kpi">
+                                <div class="ns-kpi-label">Bénéfice mensuel</div>
+                                <div class="ns-kpi-value {% if result.monthly.profit >= 0 %}positive{% else %}negative{% endif %}">
+                                    {{ "{:,.0f}".format(result.monthly.profit).replace(",", " ") }}
+                                </div>
+                                <span class="ns-unit">FCFA</span>
+                            </div>
+                            <div class="ns-kpi">
+                                <div class="ns-kpi-label">Marge</div>
+                                <div class="ns-kpi-value">{{ "%.1f"|format(result.monthly.margin_rate) }}%</div>
+                                <span class="ns-unit">marge commerciale</span>
+                            </div>
+                            <div class="ns-kpi">
+                                <div class="ns-kpi-label">ROI simulé</div>
+                                <div class="ns-kpi-value {% if result.simulation.projected_roi >= 0 %}positive{% else %}negative{% endif %}">
+                                    {{ "%.1f"|format(result.simulation.projected_roi) }}%
+                                </div>
+                                <span class="ns-unit">sur l'horizon</span>
+                            </div>
+                        </div>
+
+                        <div class="ns-analysis">
+                            <div class="ns-analysis-top">
+                                <div>
+                                    <div class="ns-status">{{ result.analysis.status }}</div>
+                                    <div class="ns-risk">Risque : {{ result.analysis.risk }}</div>
+                                </div>
+                                <div class="ns-score">{{ result.analysis.score }}/100</div>
+                            </div>
+
+                            <div class="ns-score-bar">
+                                <div class="ns-score-fill" id="scoreFill" data-score="{{ result.analysis.score }}"></div>
+                            </div>
+
+                            <div class="ns-recommendations">
+                                <div class="ns-rec-title">🧠 Recommandations Nexus</div>
+                                {% for recommendation in result.analysis.recommendations %}
+                                    <div class="ns-rec">💡 {{ recommendation }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="ns-subsection">
+                            <div class="ns-subsection-head">
+                                <h3>💵 Rentabilité</h3>
+                                <span class="ns-subsection-note">Indicateurs essentiels</span>
+                            </div>
+
+                            <div class="ns-financial-grid">
+                                <div class="ns-financial">
+                                    <div class="ns-financial-label">Seuil de rentabilité</div>
+                                    <div class="ns-financial-value">
+                                        {% if result.break_even.units is not none %}
+                                            {{ "{:,.0f}".format(result.break_even.units).replace(",", " ") }}
+                                        {% else %}
+                                            —
+                                        {% endif %}
+                                    </div>
+                                    <div class="ns-financial-note">unités / mois</div>
+                                </div>
+
+                                <div class="ns-financial">
+                                    <div class="ns-financial-label">CA au seuil</div>
+                                    <div class="ns-financial-value">
+                                        {% if result.break_even.revenue is not none %}
+                                            {{ "{:,.0f}".format(result.break_even.revenue).replace(",", " ") }}
+                                        {% else %}
+                                            —
+                                        {% endif %}
+                                    </div>
+                                    <div class="ns-financial-note">FCFA / mois</div>
+                                </div>
+
+                                <div class="ns-financial">
+                                    <div class="ns-financial-label">Récupération du capital</div>
+                                    <div class="ns-financial-value">
+                                        {% if result.investment.payback_months is not none %}
+                                            {{ "%.1f"|format(result.investment.payback_months) }} mois
+                                        {% else %}
+                                            —
+                                        {% endif %}
+                                    </div>
+                                    <div class="ns-financial-note">estimation</div>
+                                </div>
+
+                                <div class="ns-financial">
+                                    <div class="ns-financial-label">Bénéfice annuel</div>
+                                    <div class="ns-financial-value {% if result.investment.annual_profit >= 0 %}positive{% else %}negative{% endif %}">
+                                        {{ "{:,.0f}".format(result.investment.annual_profit).replace(",", " ") }}
+                                    </div>
+                                    <div class="ns-financial-note">FCFA</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="ns-subsection">
+                            <div class="ns-subsection-head">
+                                <h3>🔮 Scénarios</h3>
+                                <span class="ns-subsection-note">Variation des ventes</span>
+                            </div>
+
+                            <div class="ns-scenarios">
+                                {% for name, scenario in result.scenarios.items() %}
+                                    <div class="ns-scenario">
+                                        <div class="ns-scenario-title">
+                                            {% if name == "pessimiste" %}
+                                                📉 Pessimiste
+                                            {% elif name == "realiste" %}
+                                                📊 Réaliste
+                                            {% else %}
+                                                📈 Optimiste
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="ns-scenario-profit {% if scenario.monthly_profit >= 0 %}positive{% else %}negative{% endif %}">
+                                            {{ "{:,.0f}".format(scenario.monthly_profit).replace(",", " ") }} FCFA
+                                        </div>
+
+                                        <div class="ns-scenario-row">
+                                            <span>Ventes / mois</span>
+                                            <strong>{{ "{:,.0f}".format(scenario.monthly_sales).replace(",", " ") }}</strong>
+                                        </div>
+                                        <div class="ns-scenario-row">
+                                            <span>CA / mois</span>
+                                            <strong>{{ "{:,.0f}".format(scenario.monthly_revenue).replace(",", " ") }}</strong>
+                                        </div>
+                                        <div class="ns-scenario-row">
+                                            <span>Bénéfice annuel</span>
+                                            <strong>{{ "{:,.0f}".format(scenario.annual_profit).replace(",", " ") }}</strong>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="ns-subsection">
+                            <div class="ns-subsection-head">
+                                <h3>📈 Évolution du bénéfice</h3>
+                                <span class="ns-subsection-note">Projection mensuelle</span>
+                            </div>
+
+                            <div class="ns-chart">
+                                {% set max_profit = 0 %}
+                                {% for row in result.projection %}
+                                    {% if row.profit > max_profit %}
+                                        {% set max_profit = row.profit %}
+                                    {% endif %}
+                                {% endfor %}
+
+                                <div class="ns-bars">
+                                    {% for row in result.projection %}
+                                        {% if max_profit > 0 %}
+                                            {% set bar_height = (row.profit / max_profit * 100) %}
+                                        {% else %}
+                                            {% set bar_height = 2 %}
+                                        {% endif %}
+
+                                        <div class="ns-bar-wrap" title="Mois {{ row.month }}">
+                                            <div
+                                                class="ns-bar"
+                                                data-height="{{ bar_height }}"
+                                            ></div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+
+                                <div class="ns-chart-legend">
+                                    <span>Mois 1</span>
+                                    <span>Mois {{ result.projection|length }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="ns-subsection">
+                            <div class="ns-subsection-head">
+                                <h3>📅 Projection détaillée</h3>
+                                <span class="ns-subsection-note">{{ result.simulation.duration_months }} mois</span>
+                            </div>
+
+                            <div class="ns-table-wrap">
+                                <table class="ns-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Mois</th>
+                                            <th>Ventes</th>
+                                            <th>CA</th>
+                                            <th>Coûts</th>
+                                            <th>Bénéfice</th>
+                                            <th>Cumul</th>
+                                            <th>Trésorerie</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for row in result.projection %}
+                                            <tr>
+                                                <td>{{ row.month }}</td>
+                                                <td>{{ "{:,.0f}".format(row.sales).replace(",", " ") }}</td>
+                                                <td>{{ "{:,.0f}".format(row.revenue).replace(",", " ") }}</td>
+                                                <td>{{ "{:,.0f}".format(row.cost).replace(",", " ") }}</td>
+                                                <td class="{% if row.profit >= 0 %}positive{% else %}negative{% endif %}">
+                                                    {{ "{:,.0f}".format(row.profit).replace(",", " ") }}
+                                                </td>
+                                                <td>{{ "{:,.0f}".format(row.cumulative_profit).replace(",", " ") }}</td>
+                                                <td>{{ "{:,.0f}".format(row.cash).replace(",", " ") }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="ns-subsection">
+                            <div class="ns-subsection-head">
+                                <h3>📌 Synthèse finale</h3>
+                                <span class="ns-subsection-note">Vue globale</span>
+                            </div>
+
+                            <div class="ns-financial-grid">
+                                <div class="ns-financial">
+                                    <div class="ns-financial-label">CA simulé</div>
+                                    <div class="ns-financial-value">{{ "{:,.0f}".format(result.simulation.total_revenue).replace(",", " ") }}</div>
+                                    <div class="ns-financial-note">FCFA</div>
+                                </div>
+                                <div class="ns-financial">
+                                    <div class="ns-financial-label">Coûts simulés</div>
+                                    <div class="ns-financial-value">{{ "{:,.0f}".format(result.simulation.total_cost).replace(",", " ") }}</div>
+                                    <div class="ns-financial-note">FCFA</div>
+                                </div>
+                                <div class="ns-financial">
+                                    <div class="ns-financial-label">Bénéfice total</div>
+                                    <div class="ns-financial-value {% if result.simulation.total_profit >= 0 %}positive{% else %}negative{% endif %}">
+                                        {{ "{:,.0f}".format(result.simulation.total_profit).replace(",", " ") }}
+                                    </div>
+                                    <div class="ns-financial-note">FCFA</div>
+                                </div>
+                                <div class="ns-financial">
+                                    <div class="ns-financial-label">Trésorerie finale</div>
+                                    <div class="ns-financial-value {% if result.simulation.ending_cash >= 0 %}positive{% else %}negative{% endif %}">
+                                        {{ "{:,.0f}".format(result.simulation.ending_cash).replace(",", " ") }}
+                                    </div>
+                                    <div class="ns-financial-note">FCFA</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="ns-card ns-empty">
+                    <div>
+                        <div class="ns-empty-icon">📊</div>
+                        <h2>Votre simulation apparaîtra ici</h2>
+                        <p>
+                            Renseignez les paramètres du projet et lancez la simulation.
+                            Nexus calculera automatiquement les principaux indicateurs de rentabilité.
+                        </p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    "use strict";
+
+    function numberValue(id) {
+        var element = document.getElementById(id);
+        if (!element) return 0;
+
+        var value = parseFloat(element.value);
+        return Number.isFinite(value) ? value : 0;
+    }
+
+    function formatMoney(value) {
+        return new Intl.NumberFormat("fr-FR", {
+            maximumFractionDigits: 0
+        }).format(value || 0) + " FCFA";
+    }
+
+    function updatePreview() {
+        var sellingPrice = numberValue("selling_price");
+        var purchaseCost = numberValue("purchase_cost");
+        var monthlySales = numberValue("monthly_sales");
+        var fixedCosts = numberValue("fixed_costs");
+        var variablePercent = numberValue("variable_cost_percent");
+        var employees = numberValue("employees");
+        var salary = numberValue("salary_per_employee");
+
+        var salaryCost = employees * salary;
+        var fixedTotal = fixedCosts + salaryCost;
+        var variableUnit = sellingPrice * variablePercent / 100;
+        var contribution = sellingPrice - purchaseCost - variableUnit;
+        var revenue = sellingPrice * monthlySales;
+        var cost = monthlySales * (purchaseCost + variableUnit) + fixedTotal;
+        var profit = revenue - cost;
+        var margin = sellingPrice > 0 ? contribution / sellingPrice * 100 : 0;
+        var breakEven = contribution > 0 ? fixedTotal / contribution : 0;
+
+        var revenueEl = document.getElementById("liveRevenue");
+        var marginEl = document.getElementById("liveMargin");
+        var profitEl = document.getElementById("liveProfit");
+        var breakEvenEl = document.getElementById("liveBreakEven");
+
+        if (revenueEl) revenueEl.textContent = formatMoney(revenue);
+        if (marginEl) marginEl.textContent = margin.toFixed(1) + " %";
+        if (profitEl) {
+            profitEl.textContent = formatMoney(profit);
+            profitEl.style.color = profit >= 0 ? "#15803d" : "#dc2626";
+        }
+        if (breakEvenEl) {
+            breakEvenEl.textContent = breakEven > 0
+                ? new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 }).format(breakEven) + " unités"
+                : "—";
+        }
+    }
+
+    function setValue(id, value) {
+        var element = document.getElementById(id);
+        if (element) element.value = value;
+    }
+
+    window.setPreset = function (type) {
+        var presets = {
+            commerce: {
+                capital: 500000,
+                selling_price: 5000,
+                purchase_cost: 2500,
+                monthly_sales: 100,
+                fixed_costs: 50000,
+                variable_cost_percent: 5,
+                employees: 1,
+                salary_per_employee: 75000,
+                growth_rate: 3,
+                duration_months: 12
+            },
+            petit: {
+                capital: 150000,
+                selling_price: 2500,
+                purchase_cost: 1200,
+                monthly_sales: 60,
+                fixed_costs: 20000,
+                variable_cost_percent: 3,
+                employees: 0,
+                salary_per_employee: 0,
+                growth_rate: 2,
+                duration_months: 12
+            },
+            croissance: {
+                capital: 1000000,
+                selling_price: 10000,
+                purchase_cost: 4500,
+                monthly_sales: 200,
+                fixed_costs: 100000,
+                variable_cost_percent: 8,
+                employees: 3,
+                salary_per_employee: 100000,
+                growth_rate: 7,
+                duration_months: 24
+            },
+            service: {
+                capital: 300000,
+                selling_price: 15000,
+                purchase_cost: 3000,
+                monthly_sales: 40,
+                fixed_costs: 80000,
+                variable_cost_percent: 10,
+                employees: 1,
+                salary_per_employee: 100000,
+                growth_rate: 5,
+                duration_months: 12
+            }
+        };
+
+        var preset = presets[type];
+        if (!preset) return;
+
+        Object.keys(preset).forEach(function (key) {
+            setValue(key, preset[key]);
+        });
+
+        updatePreview();
+    };
+
+    document.addEventListener("DOMContentLoaded", function () {
+        var form = document.getElementById("nexusSimulatorForm");
+        var inputs = document.querySelectorAll("#nexusSimulatorForm input");
+        var button = document.getElementById("simulateButton");
+        var scoreFill = document.getElementById("scoreFill");
+        var bars = document.querySelectorAll(".ns-bar");
+
+        inputs.forEach(function (input) {
+            input.addEventListener("input", updatePreview);
+            input.addEventListener("change", updatePreview);
+        });
+
+        updatePreview();
+
+        if (form && button) {
+            form.addEventListener("submit", function () {
+                button.disabled = true;
+                button.textContent = "⏳ Simulation en cours...";
+            });
+        }
+
+        if (scoreFill) {
+            var score = parseFloat(scoreFill.getAttribute("data-score"));
+            if (Number.isFinite(score)) {
+                scoreFill.style.width = Math.max(0, Math.min(100, score)) + "%";
+            }
+        }
+
+        bars.forEach(function (bar) {
+            var height = parseFloat(bar.getAttribute("data-height"));
+            if (!Number.isFinite(height)) height = 2;
+            bar.style.height = Math.max(2, Math.min(100, height)) + "%";
+        });
+    });
+})();
+</script>
+
+{% endblock %}
