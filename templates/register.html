@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+<title>Créer un compte — Nexus Gestion</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: Arial, Helvetica, sans-serif;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: linear-gradient(135deg, #0f172a, #1e3a8a);
+        padding: 20px;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 460px;
+    }
+
+    .card {
+        background: white;
+        border-radius: 20px;
+        padding: 38px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+    }
+
+    .logo {
+        width: 68px;
+        height: 68px;
+        margin: 0 auto 18px;
+        border-radius: 18px;
+        background: #2563eb;
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    h1 {
+        text-align: center;
+        color: #111827;
+        font-size: 28px;
+        margin-bottom: 8px;
+    }
+
+    .subtitle {
+        text-align: center;
+        color: #6b7280;
+        margin-bottom: 30px;
+        font-size: 14px;
+    }
+
+    .form-group {
+        margin-bottom: 18px;
+    }
+
+    label {
+        display: block;
+        color: #374151;
+        font-weight: 600;
+        font-size: 14px;
+        margin-bottom: 7px;
+    }
+
+    input {
+        width: 100%;
+        padding: 13px 14px;
+        border: 1px solid #d1d5db;
+        border-radius: 10px;
+        font-size: 15px;
+        outline: none;
+        transition: 0.2s;
+    }
+
+    input:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    .password-info {
+        color: #6b7280;
+        font-size: 12px;
+        margin-top: 6px;
+    }
+
+    .button {
+        width: 100%;
+        border: none;
+        border-radius: 10px;
+        padding: 14px;
+        background: #2563eb;
+        color: white;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        margin-top: 8px;
+        transition: 0.2s;
+    }
+
+    .button:hover {
+        background: #1d4ed8;
+    }
+
+    .messages {
+        margin-bottom: 20px;
+    }
+
+    .message {
+        padding: 12px 14px;
+        border-radius: 10px;
+        background: #fee2e2;
+        color: #991b1b;
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+
+    .login-link {
+        text-align: center;
+        margin-top: 22px;
+        font-size: 14px;
+        color: #6b7280;
+    }
+
+    .login-link a {
+        color: #2563eb;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .login-link a:hover {
+        text-decoration: underline;
+    }
+
+    .security {
+        text-align: center;
+        color: #9ca3af;
+        font-size: 11px;
+        margin-top: 25px;
+        line-height: 1.5;
+    }
+
+    @media (max-width: 500px) {
+        .card {
+            padding: 28px 22px;
+        }
+
+        h1 {
+            font-size: 24px;
+        }
+    }
+</style>
+```
+
+</head>
+
+<body>
+
+<div class="container">
+
+```
+<div class="card">
+
+    <div class="logo">N</div>
+
+    <h1>Créer un compte</h1>
+
+    <p class="subtitle">
+        Rejoignez Nexus Gestion gratuitement
+    </p>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="message">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('register') }}">
+
+        <div class="form-group">
+            <label for="full_name">Nom complet</label>
+
+            <input
+                type="text"
+                id="full_name"
+                name="full_name"
+                placeholder="Ex. Jean Kouassi"
+                required
+                autocomplete="name"
+                maxlength="120"
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="username">Nom d'utilisateur</label>
+
+            <input
+                type="text"
+                id="username"
+                name="username"
+                placeholder="Ex. jean.kouassi"
+                required
+                minlength="3"
+                maxlength="50"
+                autocomplete="username"
+            >
+
+            <div class="password-info">
+                Minimum 3 caractères.
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Mot de passe</label>
+
+            <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Votre mot de passe"
+                required
+                minlength="8"
+                autocomplete="new-password"
+            >
+
+            <div class="password-info">
+                Minimum 8 caractères.
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="password_confirm">Confirmer le mot de passe</label>
+
+            <input
+                type="password"
+                id="password_confirm"
+                name="password_confirm"
+                placeholder="Répétez votre mot de passe"
+                required
+                minlength="8"
+                autocomplete="new-password"
+            >
+        </div>
+
+        <button type="submit" class="button">
+            Créer mon compte
+        </button>
+
+    </form>
+
+    <div class="login-link">
+        Vous avez déjà un compte ?
+        <a href="{{ url_for('login') }}">Se connecter</a>
+    </div>
+
+    <div class="security">
+        Votre compte sera créé comme utilisateur normal et sera
+        immédiatement actif.
+    </div>
+
+</div>
+
+
+</div>
+
+</body>
+</html>

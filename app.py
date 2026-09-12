@@ -2755,6 +2755,7 @@ def health_check():
 PUBLIC_ENDPOINTS = {
     "login",
     "logout",
+    "register",
     "setup_admin",
     "health_check",
     "static",
@@ -2833,6 +2834,63 @@ def login():
         return redirect(url_for("dashboard"))
 
     return render_template("login.html")
+
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    """Inscription publique : chaque nouveau compte est actif et employee."""
+    if is_logged_in():
+        return redirect(url_for("dashboard"))
+
+    if request.method == "POST":
+        full_name = request.form.get("full_name", "").strip()
+        username = request.form.get("username", "").strip().lower()
+        password = request.form.get("password", "")
+        password_confirm = request.form.get("password_confirm", "")
+
+        if not full_name:
+            flash("Le nom complet est obligatoire.", "error")
+            return redirect(url_for("register"))
+        if len(username) < 3:
+            flash("Le nom d'utilisateur doit contenir au moins 3 caractères.", "error")
+            return redirect(url_for("register"))
+        if len(password) < 8:
+            flash("Le mot de passe doit contenir au moins 8 caractères.", "error")
+            return redirect(url_for("register"))
+        if password != password_confirm:
+            flash("Les mots de passe ne correspondent pas.", "error")
+            return redirect(url_for("register"))
+
+        connection = get_db_connection()
+        try:
+            if get_user_by_username(connection, username):
+                flash("Ce nom d'utilisateur existe déjà.", "error")
+                return redirect(url_for("register"))
+
+            connection.execute(
+                """
+                INSERT INTO users
+                    (username, password_hash, full_name, role, active, created_at)
+                VALUES (?, ?, ?, 'employee', 1, ?)
+                """,
+                (username, hash_password(password), full_name, now_datetime()),
+            )
+            connection.commit()
+        except DB_INTEGRITY_ERROR:
+            connection.rollback()
+            flash("Ce nom d'utilisateur existe déjà.", "error")
+            return redirect(url_for("register"))
+        except DB_ERROR as error:
+            connection.rollback()
+            flash(f"Impossible de créer le compte : {error}", "error")
+            return redirect(url_for("register"))
+        finally:
+            connection.close()
+
+        flash("Compte créé avec succès. Vous pouvez maintenant vous connecter.", "success")
+        return redirect(url_for("login"))
+
+    return render_template("register.html")
 
 
 @app.route("/logout")
