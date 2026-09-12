@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Mon profil — Nexus Gestion{% endblock %}
+{% block content %}
+<style>.profile{max-width:700px;background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:24px}.profile form{display:grid;gap:12px}.profile input{padding:12px;border:1px solid #d1d5db;border-radius:9px}.profile button{padding:12px;border:0;border-radius:9px;cursor:pointer}</style>
+<h1>👤 Mon profil</h1><p>Modifiez vos informations et, si nécessaire, votre mot de passe.</p><div class="profile"><form method="post"><label>Nom complet<input name="full_name" value="{{ user.full_name }}" required></label><label>Nom d'utilisateur<input value="{{ user.username }}" disabled></label><hr><label>Ancien mot de passe<input type="password" name="old_password" autocomplete="current-password"></label><label>Nouveau mot de passe<input type="password" name="new_password" minlength="8" autocomplete="new-password"></label><label>Confirmer le nouveau mot de passe<input type="password" name="confirm_password" minlength="8" autocomplete="new-password"></label><button type="submit">Enregistrer les modifications</button></form></div>
+{% endblock %}

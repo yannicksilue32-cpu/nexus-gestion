@@ -1,0 +1,736 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Nexus Prix — Nexus Gestion</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Inter, "Segoe UI", Arial, sans-serif;
+            background: #f4f7fb;
+            color: #172033;
+        }
+
+        .container {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 30px 18px 60px;
+        }
+
+        /* =========================
+           HEADER
+        ========================= */
+
+        .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 14px;
+            background: #111827;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 25px;
+            font-weight: 900;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 30px;
+        }
+
+        .subtitle {
+            margin: 5px 0 0;
+            color: #667085;
+        }
+
+        .back {
+            text-decoration: none;
+            background: white;
+            border: 1px solid #dbe2ea;
+            padding: 11px 16px;
+            border-radius: 10px;
+            color: #172033;
+            font-weight: 700;
+        }
+
+        .back:hover {
+            background: #f8fafc;
+        }
+
+        /* =========================
+           LAYOUT
+        ========================= */
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1.05fr 0.95fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #e4e9f0;
+            border-radius: 18px;
+            padding: 24px;
+            box-shadow: 0 8px 28px rgba(16, 24, 40, 0.06);
+        }
+
+        .card h2 {
+            margin: 0 0 6px;
+            font-size: 20px;
+        }
+
+        .hint {
+            color: #667085;
+            font-size: 14px;
+            margin: 0 0 20px;
+        }
+
+        /* =========================
+           FORMULAIRE
+        ========================= */
+
+        .fields {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 800;
+            margin-bottom: 7px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 13px;
+            border: 1px solid #ccd5e1;
+            border-radius: 10px;
+            font-size: 15px;
+            outline: none;
+            background: white;
+        }
+
+        input:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.10);
+        }
+
+        .full {
+            grid-column: 1 / -1;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 20px;
+            padding: 14px;
+            border: 0;
+            border-radius: 11px;
+            background: #111827;
+            color: white;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        button:hover {
+            opacity: 0.92;
+        }
+
+        /* =========================
+           RESULTAT
+        ========================= */
+
+        .empty {
+            min-height: 350px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #667085;
+        }
+
+        .empty strong {
+            display: block;
+            color: #172033;
+            font-size: 18px;
+            margin-bottom: 7px;
+        }
+
+        .result {
+            margin-top: 20px;
+            background: #f8fafc;
+            border: 1px solid #e4e9f0;
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .recommended {
+            font-size: 38px;
+            font-weight: 900;
+            margin: 6px 0 2px;
+            color: #111827;
+        }
+
+        .fcfa {
+            font-size: 16px;
+            font-weight: 700;
+            color: #667085;
+        }
+
+        /* =========================
+           METRIQUES
+        ========================= */
+
+        .metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        .metric {
+            padding: 14px;
+            border-radius: 12px;
+            background: white;
+            border: 1px solid #e4e9f0;
+        }
+
+        .metric span {
+            display: block;
+            color: #667085;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .metric b {
+            font-size: 16px;
+        }
+
+        /* =========================
+           RECOMMANDATION
+        ========================= */
+
+        .recommendation {
+            margin-top: 16px;
+            padding: 15px;
+            border-radius: 12px;
+            background: #eef2ff;
+            border: 1px solid #dbe4ff;
+            line-height: 1.5;
+        }
+
+        /* =========================
+           ERREURS
+        ========================= */
+
+        .alert {
+            background: #fff4e5;
+            border: 1px solid #ffd79a;
+            color: #8a5300;
+            padding: 12px 14px;
+            border-radius: 10px;
+            margin-bottom: 18px;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 850px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .fields {
+                grid-template-columns: 1fr;
+            }
+
+            .metrics {
+                grid-template-columns: 1fr;
+            }
+
+            .full {
+                grid-column: auto;
+            }
+
+            h1 {
+                font-size: 25px;
+            }
+
+            .recommended {
+                font-size: 31px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- =========================
+         HEADER
+    ========================= -->
+
+    <div class="top">
+
+        <div class="brand">
+
+            <div class="logo">
+                ₣
+            </div>
+
+            <div>
+
+                <h1>Nexus Prix</h1>
+
+                <p class="subtitle">
+                    Analyse et optimisation du prix de vente
+                </p>
+
+            </div>
+
+        </div>
+
+        <a
+            class="back"
+            href="{{ url_for('dashboard') }}"
+        >
+            ← Retour au dashboard
+        </a>
+
+    </div>
+
+
+    <!-- =========================
+         MESSAGES FLASK
+    ========================= -->
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+
+        {% if messages %}
+
+            {% for category, message in messages %}
+
+                <div class="alert">
+                    {{ message }}
+                </div>
+
+            {% endfor %}
+
+        {% endif %}
+
+    {% endwith %}
+
+
+    <!-- =========================
+         CONTENU
+    ========================= -->
+
+    <div class="grid">
+
+
+        <!-- =========================
+             FORMULAIRE
+        ========================= -->
+
+        <div class="card">
+
+            <h2>
+                Paramètres du produit
+            </h2>
+
+            <p class="hint">
+                Renseigne les données disponibles pour obtenir
+                un prix de vente conseillé.
+            </p>
+
+
+            <form
+                method="POST"
+                action="{{ url_for('nexus_prix') }}"
+            >
+
+                <div class="fields">
+
+
+                    <div>
+
+                        <label for="purchase_price">
+                            Prix d'achat (FCFA)
+                        </label>
+
+                        <input
+                            id="purchase_price"
+                            name="purchase_price"
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            required
+                            value="{{ form.purchase_price }}"
+                        >
+
+                    </div>
+
+
+                    <div>
+
+                        <label for="target_margin">
+                            Marge cible (%)
+                        </label>
+
+                        <input
+                            id="target_margin"
+                            name="target_margin"
+                            type="number"
+                            min="0"
+                            max="99.99"
+                            step="0.1"
+                            value="{{ form.target_margin }}"
+                        >
+
+                    </div>
+
+
+                    <div>
+
+                        <label for="fixed_cost">
+                            Frais fixes totaux (FCFA)
+                        </label>
+
+                        <input
+                            id="fixed_cost"
+                            name="fixed_cost"
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value="{{ form.fixed_cost }}"
+                        >
+
+                    </div>
+
+
+                    <div>
+
+                        <label for="variable_cost_percent">
+                            Frais variables (%)
+                        </label>
+
+                        <input
+                            id="variable_cost_percent"
+                            name="variable_cost_percent"
+                            type="number"
+                            min="0"
+                            max="99.99"
+                            step="0.1"
+                            value="{{ form.variable_cost_percent }}"
+                        >
+
+                    </div>
+
+
+                    <div>
+
+                        <label for="current_price">
+                            Prix de vente actuel (FCFA)
+                        </label>
+
+                        <input
+                            id="current_price"
+                            name="current_price"
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value="{{ form.current_price }}"
+                        >
+
+                    </div>
+
+
+                    <div>
+
+                        <label for="market_price">
+                            Prix du marché (FCFA)
+                        </label>
+
+                        <input
+                            id="market_price"
+                            name="market_price"
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value="{{ form.market_price }}"
+                        >
+
+                    </div>
+
+
+                    <div class="full">
+
+                        <label for="quantity">
+                            Quantité concernée
+                        </label>
+
+                        <input
+                            id="quantity"
+                            name="quantity"
+                            type="number"
+                            min="1"
+                            step="1"
+                            value="{{ form.quantity }}"
+                        >
+
+                    </div>
+
+
+                </div>
+
+
+                <button type="submit">
+                    Analyser le prix
+                </button>
+
+            </form>
+
+        </div>
+
+
+        <!-- =========================
+             RESULTATS
+        ========================= -->
+
+        <div class="card">
+
+            {% if result %}
+
+                <h2>
+                    Résultat Nexus Prix
+                </h2>
+
+                <p class="hint">
+                    Prix calculé à partir des paramètres fournis.
+                </p>
+
+
+                <div class="result">
+
+
+                    <div class="hint">
+                        Prix de vente conseillé
+                    </div>
+
+
+                    <div class="recommended">
+
+                        {{ "{:,.0f}".format(
+                            result.recommended_price_rounded
+                        ).replace(",", " ") }}
+
+                        <span class="fcfa">
+                            FCFA
+                        </span>
+
+                    </div>
+
+
+                    <!-- METRIQUES -->
+
+                    <div class="metrics">
+
+
+                        <div class="metric">
+
+                            <span>
+                                Coût total / unité
+                            </span>
+
+                            <b>
+                                {{
+                                    "{:,.0f}".format(
+                                        result.total_cost_per_unit
+                                    ).replace(",", " ")
+                                }}
+
+                                FCFA
+                            </b>
+
+                        </div>
+
+
+                        <div class="metric">
+
+                            <span>
+                                Bénéfice contributif / unité
+                            </span>
+
+                            <b>
+                                {{
+                                    "{:,.0f}".format(
+                                        result.contribution_profit_per_unit
+                                    ).replace(",", " ")
+                                }}
+
+                                FCFA
+                            </b>
+
+                        </div>
+
+
+                        <div class="metric">
+
+                            <span>
+                                Marge obtenue
+                            </span>
+
+                            <b>
+                                {{ result.target_margin_achieved_percent }} %
+                            </b>
+
+                        </div>
+
+
+                        <div class="metric">
+
+                            <span>
+                                Position marché
+                            </span>
+
+                            <b>
+                                {{ result.market_position }}
+                            </b>
+
+                        </div>
+
+
+                        <div class="metric">
+
+                            <span>
+                                Prix actuel
+                            </span>
+
+                            <b>
+                                {{
+                                    "{:,.0f}".format(
+                                        result.current_price
+                                    ).replace(",", " ")
+                                }}
+
+                                FCFA
+                            </b>
+
+                        </div>
+
+
+                        <div class="metric">
+
+                            <span>
+                                Chiffre d'affaires potentiel
+                            </span>
+
+                            <b>
+                                {{
+                                    "{:,.0f}".format(
+                                        result.recommended_total_revenue
+                                    ).replace(",", " ")
+                                }}
+
+                                FCFA
+                            </b>
+
+                        </div>
+
+
+                    </div>
+
+
+                    <!-- RECOMMANDATION -->
+
+                    <div class="recommendation">
+
+                        <strong>
+                            Recommandation Nexus Prix
+                        </strong>
+
+                        <br>
+
+                        {{ result.recommendation.summary }}
+
+                    </div>
+
+
+                </div>
+
+
+            {% else %}
+
+
+                <!-- ETAT INITIAL -->
+
+                <div class="empty">
+
+                    <div>
+
+                        <div
+                            style="
+                                font-size:48px;
+                                margin-bottom:12px;
+                            "
+                        >
+                            💰
+                        </div>
+
+
+                        <strong>
+                            Votre analyse apparaîtra ici
+                        </strong>
+
+
+                        <span>
+                            Entrez les données du produit puis
+                            cliquez sur « Analyser le prix ».
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

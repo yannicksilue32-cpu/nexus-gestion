@@ -1,0 +1,400 @@
+
+{% extends "base.html" %}
+
+{% block title %}
+Produits - Nexus Gestion
+{% endblock %}
+
+{% block content %}
+
+
+<section class="page-title">
+
+    <h2>📦 Produits</h2>
+
+    <p>
+        Gérez vos produits, vos prix et votre stock.
+    </p>
+
+</section>
+
+
+<!-- =========================================
+     AJOUTER UN PRODUIT
+========================================= -->
+
+<section class="section">
+
+    <div class="info-card">
+
+        <h2>➕ Ajouter un produit</h2>
+
+
+        <form action="/products/add"
+              method="POST">
+
+
+            <div>
+
+                <label>
+                    Nom du produit
+                </label>
+
+                <input
+                    type="text"
+                    name="name"
+                    placeholder="Ex : Riz 25 kg"
+                    required
+                >
+
+            </div>
+
+
+            <div>
+
+                <label>
+                    Catégorie
+                </label>
+
+                <input
+                    type="text"
+                    name="category"
+                    placeholder="Ex : Alimentation"
+                    required
+                >
+
+            </div>
+
+
+            <div>
+
+                <label>
+                    Prix d'achat
+                </label>
+
+                <input
+                    type="number"
+                    name="purchase_price"
+                    min="0"
+                    required
+                >
+
+            </div>
+
+
+            <div>
+
+                <label>
+                    Prix de vente
+                </label>
+
+                <input
+                    type="number"
+                    name="selling_price"
+                    min="0"
+                    required
+                >
+
+            </div>
+
+
+            <div>
+
+                <label>
+                    Quantité initiale
+                </label>
+
+                <input
+                    type="number"
+                    name="quantity"
+                    min="0"
+                    required
+                >
+
+            </div>
+
+
+            <div>
+
+                <label>
+                    Seuil d'alerte
+                </label>
+
+                <input
+                    type="number"
+                    name="stock_alert"
+                    min="0"
+                    value="5"
+                    required
+                >
+
+            </div>
+
+
+            <br>
+
+
+            <button type="submit">
+
+                ➕ Ajouter le produit
+
+            </button>
+
+
+        </form>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================
+     RECHERCHE
+========================================= -->
+
+<section class="section">
+
+    <div class="search-box">
+
+        <input
+            type="text"
+            id="productSearch"
+            placeholder="🔎 Rechercher un produit..."
+        >
+
+    </div>
+
+</section>
+
+
+<!-- =========================================
+     TABLEAU DES PRODUITS
+========================================= -->
+
+<section class="section">
+
+    <div class="table-container">
+
+        <table id="productsTable">
+
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Produit
+                    </th>
+
+                    <th>
+                        Catégorie
+                    </th>
+
+                    <th>
+                        Prix achat
+                    </th>
+
+                    <th>
+                        Prix vente
+                    </th>
+
+                    <th>
+                        Stock
+                    </th>
+
+                    <th>
+                        Seuil
+                    </th>
+
+                    <th>
+                        Actions
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+
+                {% for product in products %}
+
+                <tr>
+
+
+                    <td>
+                        {{ product["name"] }}
+                    </td>
+
+
+                    <td>
+                        {{ product["category"] }}
+                    </td>
+
+
+                    <td>
+
+                        {{ "{:,.0f}".format(
+                            product["purchase_price"]
+                        ).replace(",", " ") }}
+
+                        FCFA
+
+                    </td>
+
+
+                    <td>
+
+                        {{ "{:,.0f}".format(
+                            product["selling_price"]
+                        ).replace(",", " ") }}
+
+                        FCFA
+
+                    </td>
+
+
+                    <td>
+
+                        {% if product["quantity"]
+                              <= product["stock_alert"] %}
+
+                            <span class="stock-danger">
+
+                                ⚠️
+                                {{ product["quantity"] }}
+
+                            </span>
+
+                        {% else %}
+
+                            {{ product["quantity"] }}
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <td>
+
+                        {{ product["stock_alert"] }}
+
+                    </td>
+
+
+                    <td>
+
+                        <a
+                            href="/products/edit/{{ product['id'] }}"
+                        >
+
+                            ✏️ Modifier
+
+                        </a>
+
+
+                        &nbsp;
+
+
+                        <a
+                            href="/products/delete/{{ product['id'] }}"
+                            onclick="return confirm(
+                                'Supprimer ce produit ?'
+                            )"
+                        >
+
+                            🗑️ Supprimer
+
+                        </a>
+
+                    </td>
+
+
+                </tr>
+
+
+                {% else %}
+
+                <tr>
+
+                    <td colspan="7">
+
+                        Aucun produit enregistré.
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+
+            </tbody>
+
+
+        </table>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================
+     RECHERCHE JAVASCRIPT
+========================================= -->
+
+<script>
+
+const search =
+    document.getElementById("productSearch");
+
+
+const rows =
+    document.querySelectorAll(
+        "#productsTable tbody tr"
+    );
+
+
+search.addEventListener(
+    "input",
+    function () {
+
+        const value =
+            search.value.toLowerCase().trim();
+
+
+        rows.forEach(
+            function (row) {
+
+                const text =
+                    row.textContent.toLowerCase();
+
+
+                if (
+                    text.includes(value)
+                    ||
+                    value === ""
+                ) {
+
+                    row.style.display = "";
+
+                } else {
+
+                    row.style.display = "none";
+
+                }
+
+            }
+        );
+
+    }
+);
+
+</script>
+
+
+{% endblock %}
+
+
+
+       

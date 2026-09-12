@@ -1,0 +1,390 @@
+
+{% extends "base.html" %}
+
+{% block title %}
+Dépenses - Nexus Gestion
+{% endblock %}
+
+{% block content %}
+
+<section class="page-title">
+
+    <h2>💸 Gestion des dépenses</h2>
+
+    <p>
+        Enregistrez et suivez les dépenses de votre entreprise.
+    </p>
+
+</section>
+
+
+<!-- =========================================
+     AJOUTER UNE DÉPENSE
+========================================= -->
+
+<section class="section">
+
+    <div class="info-card">
+
+        <h2>➕ Enregistrer une dépense</h2>
+
+        <form
+            action="/expenses/add"
+            method="POST"
+        >
+
+            <div>
+
+                <label>
+                    Description
+                </label>
+
+                <input
+                    type="text"
+                    name="description"
+                    placeholder="Ex : Transport"
+                    required
+                >
+
+            </div>
+
+
+            <div>
+
+                <label>
+                    Catégorie
+                </label>
+
+                <select
+                    name="category"
+                    required
+                >
+
+                    <option value="">
+                        -- Choisir une catégorie --
+                    </option>
+
+                    <option value="Transport">
+                        Transport
+                    </option>
+
+                    <option value="Loyer">
+                        Loyer
+                    </option>
+
+                    <option value="Électricité">
+                        Électricité
+                    </option>
+
+                    <option value="Eau">
+                        Eau
+                    </option>
+
+                    <option value="Internet">
+                        Internet
+                    </option>
+
+                    <option value="Salaires">
+                        Salaires
+                    </option>
+
+                    <option value="Marketing">
+                        Marketing
+                    </option>
+
+                    <option value="Fournitures">
+                        Fournitures
+                    </option>
+
+                    <option value="Autre">
+                        Autre
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div>
+
+                <label>
+                    Montant
+                </label>
+
+                <input
+                    type="number"
+                    name="amount"
+                    min="0"
+                    step="1"
+                    placeholder="Ex : 5000"
+                    required
+                >
+
+            </div>
+
+
+            <button type="submit">
+
+                💸 Enregistrer la dépense
+
+            </button>
+
+        </form>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================
+     RECHERCHE
+========================================= -->
+
+<section class="section">
+
+    <h2>
+        📋 Historique des dépenses
+    </h2>
+
+    <div class="search-box">
+
+        <input
+            type="text"
+            id="expenseSearch"
+            placeholder="🔎 Rechercher une dépense..."
+        >
+
+    </div>
+
+</section>
+
+
+<!-- =========================================
+     TOTAL AFFICHÉ
+========================================= -->
+
+<section class="section">
+
+    <div class="info-card">
+
+        <h3>
+            💰 Total affiché
+        </h3>
+
+        <strong id="expenseDisplayedTotal">
+            0 FCFA
+        </strong>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================
+     TABLEAU
+========================================= -->
+
+<section class="section">
+
+    <div class="table-container">
+
+        <table id="expensesTable">
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Description
+                    </th>
+
+                    <th>
+                        Catégorie
+                    </th>
+
+                    <th>
+                        Montant
+                    </th>
+
+                    <th>
+                        Date
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+
+                {% for expense in expenses %}
+
+                <tr>
+
+                    <td>
+                        {{ expense["description"] }}
+                    </td>
+
+
+                    <td>
+                        {{ expense["category"] }}
+                    </td>
+
+
+                    <td class="expense-amount">
+
+                        {{ "{:,.0f}".format(
+                            expense["amount"]
+                        ).replace(",", " ") }}
+
+                        FCFA
+
+                    </td>
+
+
+                    <td>
+                        {{ expense["date"] }}
+                    </td>
+
+                </tr>
+
+
+                {% else %}
+
+                <tr>
+
+                    <td colspan="4">
+
+                        Aucune dépense enregistrée.
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================
+     JAVASCRIPT
+========================================= -->
+
+<script>
+
+/* ==========================================
+   RECHERCHE DES DÉPENSES
+========================================== */
+
+const expenseSearch =
+    document.getElementById(
+        "expenseSearch"
+    );
+
+
+const expenseRows =
+    document.querySelectorAll(
+        "#expensesTable tbody tr"
+    );
+
+
+const expenseDisplayedTotal =
+    document.getElementById(
+        "expenseDisplayedTotal"
+    );
+
+
+function updateExpenseSearch() {
+
+    const value =
+        expenseSearch.value
+        .toLowerCase()
+        .trim();
+
+
+    let totalAmount = 0;
+
+
+    expenseRows.forEach(
+        function(row) {
+
+            const text =
+                row.textContent.toLowerCase();
+
+
+            if (
+                text.includes(value)
+                ||
+                value === ""
+            ) {
+
+                row.style.display = "";
+
+
+                const amountCell =
+                    row.querySelector(
+                        ".expense-amount"
+                    );
+
+
+                if (amountCell) {
+
+                    const amount =
+                        parseFloat(
+                            amountCell.textContent
+                            .replace(
+                                /[^0-9]/g,
+                                ""
+                            )
+                        );
+
+
+                    if (!isNaN(amount)) {
+
+                        totalAmount += amount;
+
+                    }
+
+                }
+
+
+            } else {
+
+                row.style.display = "none";
+
+            }
+
+        }
+    );
+
+
+    expenseDisplayedTotal.textContent =
+        totalAmount.toLocaleString(
+            "fr-FR"
+        )
+        + " FCFA";
+
+}
+
+
+expenseSearch.addEventListener(
+    "input",
+    updateExpenseSearch
+);
+
+
+updateExpenseSearch();
+
+</script>
+
+
+{% endblock %}
+

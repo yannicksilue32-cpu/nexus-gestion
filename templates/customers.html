@@ -1,0 +1,286 @@
+
+{% extends "base.html" %}
+
+{% block title %}
+Clients - Nexus Gestion
+{% endblock %}
+
+{% block content %}
+
+
+<section class="page-title">
+
+    <h2>👥 Gestion des clients</h2>
+
+    <p>
+        Gérez les clients de votre entreprise.
+    </p>
+
+</section>
+
+
+<!-- =========================================
+     RECHERCHE
+========================================= -->
+
+<section class="section">
+
+    <div class="search-box">
+
+        <form
+            method="GET"
+            action="/customers"
+            class="search-form"
+        >
+
+            <input
+                type="text"
+                name="search"
+                placeholder="🔎 Rechercher un client..."
+                value="{{ search }}"
+            >
+
+            <button type="submit">
+                🔎 Rechercher
+            </button>
+
+        </form>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================
+     AJOUTER UN CLIENT
+========================================= -->
+
+<section class="section">
+
+    <div class="info-card">
+
+        <h2>➕ Ajouter un client</h2>
+
+
+        <form
+            method="POST"
+            action="/customers/add"
+            class="form-grid"
+        >
+
+
+            <div>
+
+                <label>
+                    Nom complet
+                </label>
+
+                <input
+                    type="text"
+                    name="name"
+                    placeholder="Ex : Jean Kouassi"
+                    required
+                >
+
+            </div>
+
+
+            <div>
+
+                <label>
+                    Téléphone
+                </label>
+
+                <input
+                    type="text"
+                    name="phone"
+                    placeholder="Ex : 07 XX XX XX XX"
+                >
+
+            </div>
+
+
+            <div>
+
+                <label>
+                    Email
+                </label>
+
+                <input
+                    type="email"
+                    name="email"
+                    placeholder="Ex : client@email.com"
+                >
+
+            </div>
+
+
+            <div>
+
+                <label>
+                    Adresse
+                </label>
+
+                <input
+                    type="text"
+                    name="address"
+                    placeholder="Ex : Abidjan"
+                >
+
+            </div>
+
+
+            <button type="submit">
+
+                ➕ Ajouter le client
+
+            </button>
+
+
+        </form>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================
+     LISTE DES CLIENTS
+========================================= -->
+
+<section class="section">
+
+    <h2>
+        📋 Liste des clients
+    </h2>
+
+
+    <div class="table-container">
+
+        <table>
+
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        ID
+                    </th>
+
+                    <th>
+                        Nom
+                    </th>
+
+                    <th>
+                        Téléphone
+                    </th>
+
+                    <th>
+                        Email
+                    </th>
+
+                    <th>
+                        Adresse
+                    </th>
+
+                    <th>
+                        Actions
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+
+                {% for customer in customers %}
+
+                <tr>
+
+
+                    <td>
+                        {{ customer["id"] }}
+                    </td>
+
+
+                    <td>
+                        {{ customer["name"] }}
+                    </td>
+
+
+                    <td>
+                        {{ customer["phone"] or "-" }}
+                    </td>
+
+
+                    <td>
+                        {{ customer["email"] or "-" }}
+                    </td>
+
+
+                    <td>
+                        {{ customer["address"] or "-" }}
+                    </td>
+
+
+                    <td>
+
+                        <a
+                            href="/customers/edit/{{ customer['id'] }}"
+                        >
+
+                            ✏️ Modifier
+
+                        </a>
+
+
+                        &nbsp;
+
+
+                        <a
+                            href="/customers/delete/{{ customer['id'] }}"
+                            onclick="return confirm(
+                                'Supprimer ce client ?'
+                            )"
+                        >
+
+                            🗑️ Supprimer
+
+                        </a>
+
+                    </td>
+
+
+                </tr>
+
+
+                {% else %}
+
+                <tr>
+
+                    <td colspan="6">
+
+                        Aucun client trouvé.
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+
+            </tbody>
+
+
+        </table>
+
+    </div>
+
+</section>
+
+
+{% endblock %}
+

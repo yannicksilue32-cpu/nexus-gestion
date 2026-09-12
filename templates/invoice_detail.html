@@ -1,0 +1,566 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>
+        {{ invoice["invoice_number"] }} - Nexus Gestion
+    </title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+
+    <style>
+
+        /* =================================================
+           FACTURE
+        ================================================= */
+
+        .invoice-container {
+
+            max-width: 900px;
+
+            margin: 40px auto;
+
+            background: white;
+
+            padding: 40px;
+
+            border-radius: 12px;
+
+            box-shadow:
+                0 4px 20px rgba(0,0,0,0.08);
+
+        }
+
+
+        .invoice-header {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            gap: 30px;
+
+            margin-bottom: 40px;
+
+            border-bottom: 2px solid #eee;
+
+            padding-bottom: 25px;
+
+        }
+
+
+        .invoice-company h1 {
+
+            margin: 0;
+
+        }
+
+
+        .invoice-number {
+
+            text-align: right;
+
+        }
+
+
+        .invoice-number h2 {
+
+            margin: 0;
+
+        }
+
+
+        .customer-box {
+
+            background: #f7f7f7;
+
+            padding: 20px;
+
+            border-radius: 8px;
+
+            margin-bottom: 30px;
+
+        }
+
+
+        .invoice-table {
+
+            width: 100%;
+
+            border-collapse: collapse;
+
+            margin-top: 20px;
+
+        }
+
+
+        .invoice-table th,
+        .invoice-table td {
+
+            padding: 14px;
+
+            border-bottom: 1px solid #ddd;
+
+            text-align: left;
+
+        }
+
+
+        .invoice-table th {
+
+            background: #f2f2f2;
+
+        }
+
+
+        .invoice-total {
+
+            text-align: right;
+
+            margin-top: 30px;
+
+            font-size: 24px;
+
+        }
+
+
+        .invoice-status {
+
+            margin-top: 10px;
+
+        }
+
+
+        .invoice-actions {
+
+            display: flex;
+
+            gap: 15px;
+
+            justify-content: center;
+
+            margin: 30px auto;
+
+        }
+
+
+        .invoice-actions button,
+        .invoice-actions a {
+
+            padding: 12px 20px;
+
+            border: none;
+
+            border-radius: 7px;
+
+            text-decoration: none;
+
+            cursor: pointer;
+
+            font-size: 16px;
+
+        }
+
+
+        @media print {
+
+            body {
+
+                background: white;
+
+            }
+
+
+            header,
+            nav,
+            footer,
+            .invoice-actions {
+
+                display: none !important;
+
+            }
+
+
+            .invoice-container {
+
+                margin: 0;
+
+                padding: 0;
+
+                max-width: none;
+
+                box-shadow: none;
+
+                border-radius: 0;
+
+            }
+
+
+            .invoice-table th {
+
+                background: #eee !important;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     EN-TÊTE NEXUS
+====================================================== -->
+
+<header>
+
+    <h1>NEXUS GESTION</h1>
+
+    <p>Facture client</p>
+
+</header>
+
+
+<!-- =====================================================
+     MENU
+====================================================== -->
+
+<nav class="menu">
+
+    <a href="/">
+        🏠 Accueil
+    </a>
+
+    <a href="/products">
+        📦 Produits
+    </a>
+
+    <a href="/sales">
+        🛒 Ventes
+    </a>
+
+    <a href="/purchases">
+        🚚 Achats
+    </a>
+
+    <a href="/expenses">
+        💸 Dépenses
+    </a>
+
+    <a href="/customers">
+        👥 Clients
+    </a>
+
+    <a href="/invoices" class="active">
+        🧾 Factures
+    </a>
+
+</nav>
+
+
+<!-- =====================================================
+     ACTIONS
+====================================================== -->
+
+<div class="invoice-actions">
+
+    <a href="/invoices">
+
+        ↩️ Retour aux factures
+
+    </a>
+
+
+    <button
+        type="button"
+        onclick="window.print()"
+    >
+
+        🖨️ Imprimer
+
+    </button>
+
+</div>
+
+
+<!-- =====================================================
+     FACTURE
+====================================================== -->
+
+<main>
+
+    <div class="invoice-container">
+
+
+        <!-- EN-TÊTE FACTURE -->
+
+        <div class="invoice-header">
+
+
+            <div class="invoice-company">
+
+                <h1>
+                    NEXUS GESTION
+                </h1>
+
+                <p>
+                    Gestion intelligente des entreprises
+                </p>
+
+            </div>
+
+
+            <div class="invoice-number">
+
+                <h2>
+                    FACTURE
+                </h2>
+
+                <p>
+
+                    <strong>
+                        {{ invoice["invoice_number"] }}
+                    </strong>
+
+                </p>
+
+                <p>
+
+                    Date :
+
+                    {{ invoice["date"] }}
+
+                </p>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- CLIENT -->
+
+        <div class="customer-box">
+
+            <h3>
+                👤 Client
+            </h3>
+
+
+            <p>
+
+                <strong>
+                    {{ invoice["customer_name"] }}
+                </strong>
+
+            </p>
+
+
+            {% if invoice["customer_phone"] %}
+
+            <p>
+
+                📞
+                {{ invoice["customer_phone"] }}
+
+            </p>
+
+            {% endif %}
+
+
+            {% if invoice["customer_email"] %}
+
+            <p>
+
+                ✉️
+                {{ invoice["customer_email"] }}
+
+            </p>
+
+            {% endif %}
+
+
+            {% if invoice["customer_address"] %}
+
+            <p>
+
+                📍
+                {{ invoice["customer_address"] }}
+
+            </p>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- PRODUITS -->
+
+        <h3>
+            📦 Détails de la facture
+        </h3>
+
+
+        <table class="invoice-table">
+
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Produit
+                    </th>
+
+                    <th>
+                        Quantité
+                    </th>
+
+                    <th>
+                        Prix unitaire
+                    </th>
+
+                    <th>
+                        Sous-total
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+
+                {% for item in items %}
+
+                <tr>
+
+
+                    <td>
+
+                        {{ item["product_name"] }}
+
+                    </td>
+
+
+                    <td>
+
+                        {{ item["quantity"] }}
+
+                    </td>
+
+
+                    <td>
+
+                        {{ "{:,.0f}".format(
+                            item["price"]
+                        ).replace(",", " ") }}
+
+                        FCFA
+
+                    </td>
+
+
+                    <td>
+
+                        {{ "{:,.0f}".format(
+                            item["subtotal"]
+                        ).replace(",", " ") }}
+
+                        FCFA
+
+                    </td>
+
+
+                </tr>
+
+                {% endfor %}
+
+
+            </tbody>
+
+
+        </table>
+
+
+        <!-- TOTAL -->
+
+        <div class="invoice-total">
+
+            <strong>
+
+                TOTAL :
+
+                {{ "{:,.0f}".format(
+                    invoice["total"]
+                ).replace(",", " ") }}
+
+                FCFA
+
+            </strong>
+
+        </div>
+
+
+        <!-- STATUT -->
+
+        <div class="invoice-status">
+
+            <strong>
+                Statut :
+            </strong>
+
+            {{ invoice["status"] }}
+
+        </div>
+
+
+        <!-- MESSAGE -->
+
+        <div style="margin-top: 40px;">
+
+            <p>
+                Merci pour votre confiance.
+            </p>
+
+            <p>
+                <strong>
+                    Nexus Gestion
+                </strong>
+            </p>
+
+        </div>
+
+
+    </div>
+
+</main>
+
+
+<footer>
+
+    <p>
+        Nexus Gestion — Gestion intelligente des entreprises
+    </p>
+
+</footer>
+
+
+</body>
+
+</html>
+

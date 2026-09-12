@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Gestion du stock — Nexus Gestion{% endblock %}
+
+{% block content %}
+<style>
+.stock-page{display:flex;flex-direction:column;gap:22px}
+.stock-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.stock-head h1{margin:0 0 6px;font-size:30px}.stock-head p{margin:0;opacity:.7}
+.stock-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.stock-kpi,.stock-panel{background:var(--card-bg,#fff);border:1px solid rgba(0,0,0,.08);border-radius:16px;padding:18px;box-shadow:0 8px 24px rgba(0,0,0,.04)}
+.stock-kpi small{display:block;opacity:.65;text-transform:uppercase;font-size:11px;font-weight:800;letter-spacing:.08em}.stock-kpi strong{display:block;font-size:25px;margin-top:8px}.stock-kpi span{font-size:12px;opacity:.65}
+.stock-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:18px}.stock-panel h2{font-size:18px;margin:0 0 14px}
+.stock-form{display:grid;grid-template-columns:1fr 1fr;gap:12px}.stock-form .full{grid-column:1/-1}.stock-form label{display:block;font-size:12px;font-weight:700;margin-bottom:6px}.stock-form input,.stock-form select{width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid rgba(0,0,0,.12);border-radius:10px;background:transparent}.stock-form button{padding:12px 15px;border:0;border-radius:10px;cursor:pointer;font-weight:800}
+.stock-entry{background:#eefaf2}.stock-exit{background:#fff1f1}
+.stock-filters{display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:10px;margin-bottom:14px}.stock-filters input,.stock-filters select{padding:10px;border:1px solid rgba(0,0,0,.12);border-radius:9px;background:transparent}.stock-filters button,.reset-btn{padding:10px 13px;border:0;border-radius:9px;cursor:pointer;text-decoration:none}
+.stock-table{width:100%;border-collapse:collapse}.stock-table th,.stock-table td{text-align:left;padding:11px 9px;border-bottom:1px solid rgba(0,0,0,.07);font-size:13px}.stock-table th{font-size:11px;text-transform:uppercase;opacity:.6}.stock-table td.num{text-align:right}.badge{display:inline-flex;padding:5px 8px;border-radius:999px;font-size:11px;font-weight:800}.badge.normal{background:#eaf7ef}.badge.low{background:#fff5d9}.badge.out{background:#ffe7e7}.movement-entry{font-weight:800}.movement-exit{font-weight:800}.muted{opacity:.6;font-size:12px}.scroll-table{overflow:auto}
+@media(max-width:1000px){.stock-kpis{grid-template-columns:repeat(2,1fr)}.stock-grid{grid-template-columns:1fr}.stock-filters{grid-template-columns:1fr 1fr}.stock-filters input{grid-column:1/-1}}
+@media(max-width:600px){.stock-kpis{grid-template-columns:1fr}.stock-form{grid-template-columns:1fr}.stock-form .full{grid-column:auto}.stock-filters{grid-template-columns:1fr}}
+</style>
+
+<div class="stock-page">
+  <div class="stock-head">
+    <div><h1>📦 Gestion du stock</h1><p>Suivez les quantités, les valeurs et chaque mouvement de votre inventaire.</p></div>
+    <a href="{{ url_for('products') }}" class="reset-btn">Gérer les produits →</a>
+  </div>
+
+  <div class="stock-kpis">
+    <div class="stock-kpi"><small>Unités en stock</small><strong>{{ total_quantity }}</strong><span>Toutes références</span></div>
+    <div class="stock-kpi"><small>Valeur d'achat</small><strong>{{ purchase_value|money }} FCFA</strong><span>Capital immobilisé</span></div>
+    <div class="stock-kpi"><small>Valeur potentielle</small><strong>{{ selling_value|money }} FCFA</strong><span>Au prix de vente</span></div>
+    <div class="stock-kpi"><small>Marge potentielle</small><strong>{{ potential_margin|money }} FCFA</strong><span>Vente − coût d'achat</span></div>
+  </div>
+
+  <div class="stock-grid">
+    <section class="stock-panel">
+      <h2>➕➖ Mouvement manuel</h2>
+      <form method="post" action="{{ url_for('stock_movement') }}" class="stock-form">
+        <div><label>Produit</label><select name="product_id" required><option value="">Sélectionner…</option>{% for p in products_list %}<option value="{{ p.id }}">{{ p.name }} — {{ p.quantity }} en stock</option>{% endfor %}</select></div>
+        <div><label>Type</label><select name="movement_type" required><option value="entry">Entrée</option><option value="exit">Sortie</option></select></div>
+        <div><label>Quantité</label><input type="number" name="quantity" min="1" step="1" required></div>
+        <div><label>Motif</label><input type="text" name="reason" maxlength="120" placeholder="Ex. correction, casse, inventaire…" required></div>
+        <div class="full"><button type="submit">Enregistrer le mouvement</button></div>
+      </form>
+      <p class="muted">Les ventes et achats enregistrés dans Nexus Gestion alimentent également automatiquement l'historique du stock.</p>
+    </section>
+
+    <section class="stock-panel">
+      <h2>📊 État de l'inventaire</h2>
+      <table class="stock-table"><tbody>
+        <tr><td>Stock normal</td><td class="num"><strong>{{ normal_stock }}</strong></td></tr>
+        <tr><td>Stock faible</td><td class="num"><strong>{{ low_stock }}</strong></td></tr>
+        <tr><td>Rupture</td><td class="num"><strong>{{ out_of_stock }}</strong></td></tr>
+      </tbody></table>
+    </section>
+  </div>
+
+  <section class="stock-panel">
+    <h2>🔎 Inventaire</h2>
+    <form method="get" action="{{ url_for('stock') }}" class="stock-filters">
+      <input type="search" name="search" value="{{ search }}" placeholder="Rechercher un produit ou une catégorie…">
+      <select name="state"><option value="all" {% if state=='all' %}selected{% endif %}>Tous les états</option><option value="normal" {% if state=='normal' %}selected{% endif %}>Normal</option><option value="faible" {% if state=='faible' %}selected{% endif %}>Stock faible</option><option value="rupture" {% if state=='rupture' %}selected{% endif %}>Rupture</option></select>
+      <select name="product_id"><option value="0">Tous les produits</option>{% for p in products_list %}<option value="{{ p.id }}" {% if product_filter==p.id %}selected{% endif %}>{{ p.name }}</option>{% endfor %}</select>
+      <input type="hidden" name="movement" value="{{ movement }}"><button type="submit">Filtrer</button><a href="{{ url_for('stock') }}" class="reset-btn">Réinitialiser</a>
+    </form>
+    <div class="scroll-table"><table class="stock-table"><thead><tr><th>Produit</th><th>Catégorie</th><th>Stock</th><th>Seuil</th><th>État</th><th>Valeur achat</th><th>Valeur vente</th></tr></thead><tbody>
+      {% for p in products %}<tr><td><strong>{{ p.name }}</strong></td><td>{{ p.category or '—' }}</td><td>{{ p.quantity }}</td><td>{{ p.stock_alert }}</td><td>{% if p.quantity <= 0 %}<span class="badge out">Rupture</span>{% elif p.quantity <= p.stock_alert %}<span class="badge low">Faible</span>{% else %}<span class="badge normal">Normal</span>{% endif %}</td><td>{{ p.stock_purchase_value|money }} FCFA</td><td>{{ p.stock_selling_value|money }} FCFA</td></tr>{% else %}<tr><td colspan="7" class="muted">Aucun produit trouvé.</td></tr>{% endfor %}
+    </tbody></table></div>
+  </section>
+
+  <section class="stock-panel">
+    <h2>🕘 Historique des mouvements</h2>
+    <div class="scroll-table"><table class="stock-table"><thead><tr><th>Date</th><th>Produit</th><th>Type</th><th>Quantité</th><th>Motif</th></tr></thead><tbody>
+      {% for m in movements %}<tr><td>{{ m.date }}</td><td>{{ m.product_name or 'Produit supprimé' }}</td><td>{{ m.movement_type }}</td><td class="{{ 'movement-entry' if m.quantity > 0 else 'movement-exit' }}">{{ '+' if m.quantity > 0 else '' }}{{ m.quantity }}</td><td>{{ m.reason or '—' }}</td></tr>{% else %}<tr><td colspan="5" class="muted">Aucun mouvement enregistré.</td></tr>{% endfor %}
+    </tbody></table></div>
+  </section>
+</div>
+{% endblock %}

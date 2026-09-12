@@ -1,0 +1,150 @@
+"""Nexus Simulateur Business - moteur de simulation."""
+
+def _float(value, default=0.0):
+    try:
+        if value is None or value == "":
+            return default
+        return float(str(value).strip().replace(" ", "").replace(",", "."))
+    except (TypeError, ValueError):
+        return default
+
+
+def _pct(value, default=0.0):
+    return min(100.0, max(0.0, _float(value, default)))
+
+
+def simulate_business(capital, selling_price, purchase_cost, monthly_sales,
+                      fixed_costs=0, variable_cost_percent=0, employees=0,
+                      salary_per_employee=0, growth_rate=0, duration_months=12):
+    capital = max(0.0, _float(capital))
+    selling_price = max(0.0, _float(selling_price))
+    purchase_cost = max(0.0, _float(purchase_cost))
+    monthly_sales = max(0.0, _float(monthly_sales))
+    fixed_costs = max(0.0, _float(fixed_costs))
+    variable_cost_percent = _pct(variable_cost_percent)
+    employees = max(0, int(_float(employees)))
+    salary_per_employee = max(0.0, _float(salary_per_employee))
+    growth_rate = _float(growth_rate)
+    duration_months = max(1, min(120, int(_float(duration_months, 12))))
+
+    errors = []
+    if capital <= 0: errors.append("Le capital disponible doit être supérieur à 0.")
+    if selling_price <= 0: errors.append("Le prix de vente doit être supérieur à 0.")
+    if monthly_sales <= 0: errors.append("Les ventes mensuelles prévues doivent être supérieures à 0.")
+    if selling_price <= purchase_cost:
+        errors.append("Le prix de vente doit être supérieur au coût d'achat.")
+    if errors:
+        return {"success": False, "errors": errors}
+
+    salary_cost = employees * salary_per_employee
+    fixed_total = fixed_costs + salary_cost
+    variable_unit = purchase_cost + selling_price * variable_cost_percent / 100
+    contribution = selling_price - variable_unit
+    revenue = selling_price * monthly_sales
+    total_cost = monthly_sales * variable_unit + fixed_total
+    profit = revenue - total_cost
+    margin = (contribution / selling_price * 100) if selling_price else 0
+    net_margin = (profit / revenue * 100) if revenue else 0
+
+    break_even_units = fixed_total / contribution if contribution > 0 else None
+    break_even_revenue = break_even_units * selling_price if break_even_units is not None else None
+    payback = capital / profit if profit > 0 else None
+    annual_profit = profit * 12
+    annual_roi = annual_profit / capital * 100 if capital else 0
+
+    projection = []
+    sales = monthly_sales
+    cumulative_profit = 0.0
+    cash = capital
+    for month in range(1, duration_months + 1):
+        if month > 1:
+            sales *= 1 + growth_rate / 100
+        sales = max(0.0, sales)
+        m_revenue = selling_price * sales
+        m_cost = sales * variable_unit + fixed_total
+        m_profit = m_revenue - m_cost
+        cumulative_profit += m_profit
+        cash += m_profit
+        projection.append({
+            "month": month, "sales": round(sales, 2),
+            "revenue": round(m_revenue, 2), "cost": round(m_cost, 2),
+            "profit": round(m_profit, 2),
+            "cumulative_profit": round(cumulative_profit, 2),
+            "cash": round(cash, 2),
+        })
+
+    total_revenue = sum(x["revenue"] for x in projection)
+    total_cost = sum(x["cost"] for x in projection)
+    total_profit = sum(x["profit"] for x in projection)
+    projected_roi = total_profit / capital * 100 if capital else 0
+
+    scenarios = {}
+    for name, factor in (("pessimiste", .75), ("realiste", 1.0), ("optimiste", 1.25)):
+        s = monthly_sales * factor
+        r = selling_price * s
+        p = r - s * variable_unit - fixed_total
+        scenarios[name] = {
+            "monthly_sales": round(s, 2), "monthly_revenue": round(r, 2),
+            "monthly_profit": round(p, 2), "annual_profit": round(p * 12, 2)
+        }
+
+    if profit <= 0:
+        status, risk, score = "NON RENTABLE", "ÉLEVÉ", 25
+    elif payback and payback <= 6:
+        status, risk, score = "TRÈS RENTABLE", "FAIBLE", 90
+    elif payback and payback <= duration_months:
+        status, risk, score = "RENTABLE", "FAIBLE À MOYEN", 78
+    else:
+        status, risk, score = "RENTABLE MAIS LENT", "MOYEN", 60
+    if margin >= 40: score += 5
+    elif margin < 15: score -= 10
+    if projected_roi >= 100: score += 5
+    elif projected_roi < 20: score -= 10
+    score = max(0, min(100, score))
+
+    recommendations = []
+    if profit <= 0:
+        recommendations.append("Le modèle actuel n'est pas rentable : augmentez la marge, réduisez les coûts ou augmentez les ventes.")
+    if margin < 20:
+        recommendations.append("La marge commerciale est faible : étudiez le prix de vente et le coût d'achat.")
+    elif margin >= 40:
+        recommendations.append("La marge commerciale est intéressante.")
+    if payback is not None:
+        recommendations.append("Le capital initial est récupéré rapidement." if payback <= 6 else "Le délai de récupération du capital doit être surveillé.")
+    if growth_rate != 0:
+        recommendations.append(f"La projection intègre une variation mensuelle des ventes de {growth_rate:.1f}%.")
+    if employees:
+        recommendations.append(f"Le coût salarial simulé est de {salary_cost:,.0f} par mois.")
+    if not recommendations:
+        recommendations.append("La structure financière simulée est cohérente.")
+
+    return {
+        "success": True,
+        "inputs": {"capital": capital, "selling_price": selling_price, "purchase_cost": purchase_cost,
+                   "monthly_sales": monthly_sales, "fixed_costs": fixed_costs,
+                   "variable_cost_percent": variable_cost_percent, "employees": employees,
+                   "salary_per_employee": salary_per_employee, "growth_rate": growth_rate,
+                   "duration_months": duration_months},
+        "monthly": {"revenue": round(revenue, 2), "total_cost": round(total_cost, 2),
+                     "profit": round(profit, 2), "margin_rate": round(margin, 2),
+                     "net_margin_rate": round(net_margin, 2), "salary_cost": round(salary_cost, 2)},
+        "break_even": {"units": round(break_even_units, 2) if break_even_units is not None else None,
+                       "revenue": round(break_even_revenue, 2) if break_even_revenue is not None else None},
+        "investment": {"payback_months": round(payback, 2) if payback is not None else None,
+                        "annual_profit": round(annual_profit, 2), "annual_roi": round(annual_roi, 2)},
+        "simulation": {"duration_months": duration_months, "total_revenue": round(total_revenue, 2),
+                        "total_cost": round(total_cost, 2), "total_profit": round(total_profit, 2),
+                        "projected_roi": round(projected_roi, 2), "ending_cash": round(projection[-1]["cash"], 2)},
+        "projection": projection, "scenarios": scenarios,
+        "analysis": {"status": status, "risk": risk, "score": int(score), "recommendations": recommendations}
+    }
+
+
+def build_business_report(result):
+    if not result.get("success"):
+        return "Simulation impossible : données invalides."
+    m, i, s, a = result["monthly"], result["investment"], result["simulation"], result["analysis"]
+    return (f"RAPPORT NEXUS SIMULATEUR BUSINESS\n\nStatut : {a['status']}\nRisque : {a['risk']}\n"
+            f"Score Nexus : {a['score']}/100\nCA mensuel : {m['revenue']:,.0f}\n"
+            f"Bénéfice mensuel : {m['profit']:,.0f}\nMarge : {m['margin_rate']:.1f}%\n"
+            f"ROI annuel estimé : {i['annual_roi']:.1f}%\nBénéfice simulé : {s['total_profit']:,.0f}\n")

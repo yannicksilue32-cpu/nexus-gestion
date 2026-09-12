@@ -1,0 +1,363 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>
+        {{ invoice["invoice_number"] }}
+    </title>
+
+
+    <style>
+
+        body {
+
+            font-family:
+                Arial,
+                sans-serif;
+
+            margin: 40px;
+
+            color: #222;
+
+        }
+
+
+        .invoice {
+
+            max-width: 800px;
+
+            margin: auto;
+
+        }
+
+
+        .header {
+
+            display: flex;
+
+            justify-content:
+                space-between;
+
+            border-bottom:
+                2px solid #222;
+
+            padding-bottom: 20px;
+
+            margin-bottom: 30px;
+
+        }
+
+
+        h1 {
+
+            margin: 0;
+
+        }
+
+
+        table {
+
+            width: 100%;
+
+            border-collapse:
+                collapse;
+
+            margin-top: 30px;
+
+        }
+
+
+        th,
+        td {
+
+            border:
+                1px solid #ccc;
+
+            padding: 10px;
+
+            text-align: left;
+
+        }
+
+
+        th {
+
+            background:
+                #f2f2f2;
+
+        }
+
+
+        .total {
+
+            text-align: right;
+
+            margin-top: 30px;
+
+            font-size: 22px;
+
+        }
+
+
+        .footer {
+
+            margin-top: 50px;
+
+            text-align: center;
+
+            font-size: 13px;
+
+        }
+
+
+        .print-button {
+
+            margin-bottom: 30px;
+
+            padding: 10px 20px;
+
+            cursor: pointer;
+
+        }
+
+
+        @media print {
+
+            .print-button {
+
+                display: none;
+
+            }
+
+            body {
+
+                margin: 0;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="invoice">
+
+
+    <button
+        class="print-button"
+        onclick="window.print()"
+    >
+
+        🖨️ Imprimer
+
+    </button>
+
+
+    <div class="header">
+
+
+        <div>
+
+            <h1>
+                NEXUS GESTION
+            </h1>
+
+            <p>
+                Gestion intelligente des entreprises
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <strong>
+                FACTURE
+            </strong>
+
+            <p>
+                {{ invoice["invoice_number"] }}
+            </p>
+
+            <p>
+                {{ invoice["date"] }}
+            </p>
+
+        </div>
+
+
+    </div>
+
+
+    <div>
+
+
+        <h3>
+            Facturé à :
+        </h3>
+
+
+        <p>
+
+            <strong>
+                {{ invoice["customer_name"] }}
+            </strong>
+
+        </p>
+
+
+        {% if invoice["customer_phone"] %}
+
+        <p>
+            Téléphone :
+            {{ invoice["customer_phone"] }}
+        </p>
+
+        {% endif %}
+
+
+        {% if invoice["customer_email"] %}
+
+        <p>
+            Email :
+            {{ invoice["customer_email"] }}
+        </p>
+
+        {% endif %}
+
+
+        {% if invoice["customer_address"] %}
+
+        <p>
+            Adresse :
+            {{ invoice["customer_address"] }}
+        </p>
+
+        {% endif %}
+
+
+    </div>
+
+
+    <table>
+
+
+        <thead>
+
+            <tr>
+
+                <th>
+                    Produit
+                </th>
+
+                <th>
+                    Quantité
+                </th>
+
+                <th>
+                    Prix unitaire
+                </th>
+
+                <th>
+                    Total
+                </th>
+
+            </tr>
+
+        </thead>
+
+
+        <tbody>
+
+
+            {% for item in items %}
+
+            <tr>
+
+                <td>
+                    {{ item["product_name"] }}
+                </td>
+
+                <td>
+                    {{ item["quantity"] }}
+                </td>
+
+                <td>
+
+                    {{ "{:,.0f}".format(
+                        item["price"]
+                    ).replace(",", " ") }}
+
+                    FCFA
+
+                </td>
+
+                <td>
+
+                    {{ "{:,.0f}".format(
+                        item["subtotal"]
+                    ).replace(",", " ") }}
+
+                    FCFA
+
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+
+        </tbody>
+
+
+    </table>
+
+
+    <div class="total">
+
+
+        <strong>
+
+            TOTAL :
+
+            {{ "{:,.0f}".format(
+                invoice["total"]
+            ).replace(",", " ") }}
+
+            FCFA
+
+        </strong>
+
+
+    </div>
+
+
+    <div class="footer">
+
+        <p>
+            Merci pour votre confiance.
+        </p>
+
+        <p>
+            Nexus Gestion
+        </p>
+
+    </div>
+
+
+</div>
+
+
+</body>
+
+</html>
+

@@ -1,0 +1,126 @@
+```html
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>Modifier client - Nexus Gestion</title>
+
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<header>
+
+<h1>NEXUS GESTION</h1>
+
+<p>Modifier un client</p>
+
+</header>
+
+
+<nav class="menu">
+
+<a href="/">🏠 Accueil</a>
+
+<a href="/products">📦 Produits</a>
+
+<a href="/sales">🛒 Ventes</a>
+
+<a href="/purchases">🚚 Achats</a>
+
+<a href="/expenses">💸 Dépenses</a>
+
+<a href="/customers">👥 Clients</a>
+
+</nav>
+
+
+<main>
+
+<section class="card">
+
+<h2>✏️ Modifier le client</h2>
+
+<form method="POST"
+      class="form-grid">
+
+<div>
+
+<label>Nom complet</label>
+
+<input
+type="text"
+name="name"
+value="{{ customer['name'] }}"
+required
+>
+
+</div>
+
+
+<div>
+
+<label>Téléphone</label>
+
+<input
+type="text"
+name="phone"
+value="{{ customer['phone'] or '' }}"
+>
+
+</div>
+
+
+<div>
+
+<label>Email</label>
+
+<input
+type="email"
+name="email"
+value="{{ customer['email'] or '' }}"
+>
+
+</div>
+
+
+<div>
+
+<label>Adresse</label>
+
+<input
+type="text"
+name="address"
+value="{{ customer['address'] or '' }}"
+>
+
+</div>
+
+
+<button type="submit">
+💾 Enregistrer
+</button>
+
+</form>
+
+<br>
+
+<a href="/customers">
+← Retour aux clients
+</a>
+
+</section>
+
+</main>
+
+</body>
+
+</html>
+```
+<a href="/customers">👥 Clients</a>

@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Connexion — Nexus Gestion</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-family: Arial, Helvetica, sans-serif;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #eff6ff,
+                    #f8fafc
+                );
+
+            color: #172033;
+        }
+
+
+        /* =====================================================
+           CONTENEUR
+        ===================================================== */
+
+        .login-container {
+
+            width: min(430px, 92%);
+
+            background: white;
+
+            border: 1px solid #e5e7eb;
+
+            border-radius: 18px;
+
+            padding: 35px;
+
+            box-shadow:
+                0 18px 50px
+                rgba(15, 23, 42, .10);
+        }
+
+
+        /* =====================================================
+           LOGO
+        ===================================================== */
+
+        .logo {
+
+            text-align: center;
+
+            margin-bottom: 28px;
+        }
+
+        .logo h1 {
+
+            margin: 0;
+
+            font-size: 30px;
+
+            font-weight: 800;
+
+            color: #2563eb;
+        }
+
+        .logo p {
+
+            margin: 8px 0 0;
+
+            color: #6b7280;
+
+            font-size: 14px;
+        }
+
+
+        /* =====================================================
+           MESSAGES
+        ===================================================== */
+
+        .flash-container {
+
+            margin-bottom: 18px;
+        }
+
+        .flash {
+
+            padding: 12px 14px;
+
+            border-radius: 9px;
+
+            margin-bottom: 8px;
+
+            background: #fee2e2;
+
+            border: 1px solid #fecaca;
+
+            color: #991b1b;
+
+            font-size: 14px;
+        }
+
+
+        /* =====================================================
+           FORMULAIRE
+        ===================================================== */
+
+        .field {
+
+            margin-bottom: 18px;
+        }
+
+        .field label {
+
+            display: block;
+
+            margin-bottom: 7px;
+
+            font-weight: 700;
+
+            font-size: 14px;
+        }
+
+
+        .field input {
+
+            width: 100%;
+
+            padding: 12px 13px;
+
+            border: 1px solid #d1d5db;
+
+            border-radius: 9px;
+
+            background: white;
+
+            font-family: inherit;
+
+            font-size: 14px;
+
+            outline: none;
+
+            transition: .15s;
+        }
+
+
+        .field input:focus {
+
+            border-color: #2563eb;
+
+            box-shadow:
+                0 0 0 3px
+                rgba(37, 99, 235, .10);
+        }
+
+
+        /* =====================================================
+           BOUTON
+        ===================================================== */
+
+        .login-button {
+
+            width: 100%;
+
+            padding: 13px;
+
+            border: none;
+
+            border-radius: 9px;
+
+            background: #2563eb;
+
+            color: white;
+
+            font-size: 15px;
+
+            font-weight: 800;
+
+            cursor: pointer;
+
+            transition: .15s;
+        }
+
+        .login-button:hover {
+
+            background: #1d4ed8;
+        }
+
+        .login-button:active {
+
+            transform: translateY(1px);
+        }
+
+
+        /* =====================================================
+           PIED DE PAGE
+        ===================================================== */
+
+        .footer {
+
+            text-align: center;
+
+            margin-top: 23px;
+
+            color: #9ca3af;
+
+            font-size: 12px;
+        }
+
+
+        /* =====================================================
+           RESPONSIVE
+        ===================================================== */
+
+        @media (max-width: 500px) {
+
+            .login-container {
+
+                padding: 26px;
+
+                border-radius: 14px;
+            }
+
+            .logo h1 {
+
+                font-size: 26px;
+            }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="login-container">
+
+
+    <!-- =====================================================
+         LOGO
+    ====================================================== -->
+
+    <div class="logo">
+
+        <h1>
+            NEXUS GESTION
+        </h1>
+
+        <p>
+            Gestion intelligente de votre entreprise
+        </p>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         MESSAGES FLASK
+    ====================================================== -->
+
+    {% with messages = get_flashed_messages() %}
+
+        {% if messages %}
+
+            <div class="flash-container">
+
+                {% for message in messages %}
+
+                    <div class="flash">
+                        {{ message }}
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% endif %}
+
+    {% endwith %}
+
+
+
+    <!-- =====================================================
+         FORMULAIRE DE CONNEXION
+    ====================================================== -->
+
+    <form
+        method="POST"
+        autocomplete="on"
+    >
+
+        <!--
+            Permet à Flask de conserver l'URL
+            demandée avant la connexion.
+        -->
+
+        <input
+            type="hidden"
+            name="next"
+            value="{{ request.args.get('next', '') }}"
+        >
+
+
+        <!-- =================================================
+             NOM UTILISATEUR
+        ================================================== -->
+
+        <div class="field">
+
+            <label for="username">
+                Nom d'utilisateur
+            </label>
+
+            <input
+                id="username"
+                name="username"
+                type="text"
+                autocomplete="username"
+                placeholder="Votre nom d'utilisateur"
+                required
+                autofocus
+            >
+
+        </div>
+
+
+
+        <!-- =================================================
+             MOT DE PASSE
+        ================================================== -->
+
+        <div class="field">
+
+            <label for="password">
+                Mot de passe
+            </label>
+
+            <input
+                id="password"
+                name="password"
+                type="password"
+                autocomplete="current-password"
+                placeholder="Votre mot de passe"
+                required
+            >
+
+        </div>
+
+
+
+        <!-- =================================================
+             CONNEXION
+        ================================================== -->
+
+        <button
+            type="submit"
+            class="login-button"
+        >
+            Se connecter
+        </button>
+
+    </form>
+
+
+
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
+
+    <div class="footer">
+
+        Nexus Gestion V1
+
+    </div>
+
+
+</div>
+
+
+</body>
+
+</html>

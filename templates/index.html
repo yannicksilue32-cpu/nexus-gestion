@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Nexus Gestion</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #222;
+        }
+
+        header {
+            background: #111827;
+            color: white;
+            padding: 20px 30px;
+        }
+
+        header h1 {
+            font-size: 28px;
+        }
+
+        header p {
+            margin-top: 5px;
+            color: #cbd5e1;
+        }
+
+        nav {
+            background: white;
+            padding: 15px 30px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #374151;
+            margin-right: 25px;
+            font-weight: bold;
+        }
+
+        nav a:hover {
+            color: #2563eb;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .welcome {
+            margin-bottom: 25px;
+        }
+
+        .welcome h2 {
+            font-size: 26px;
+            margin-bottom: 8px;
+        }
+
+        .welcome p {
+            color: #6b7280;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 22px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+        }
+
+        .card h3 {
+            font-size: 15px;
+            color: #6b7280;
+            margin-bottom: 12px;
+        }
+
+        .value {
+            font-size: 27px;
+            font-weight: bold;
+        }
+
+        .positive {
+            color: #16a34a;
+        }
+
+        .negative {
+            color: #dc2626;
+        }
+
+        .actions {
+            margin-top: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 13px 20px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .button:hover {
+            background: #1d4ed8;
+        }
+
+        .button.green {
+            background: #16a34a;
+        }
+
+        .button.orange {
+            background: #ea580c;
+        }
+
+        .button.dark {
+            background: #374151;
+        }
+
+        .status {
+            margin-top: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+        }
+
+        .status h3 {
+            margin-bottom: 10px;
+        }
+
+        footer {
+            margin-top: 50px;
+            padding: 20px;
+            text-align: center;
+            color: #6b7280;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>⚡ Nexus Gestion</h1>
+    <p>Gestion intelligente de votre entreprise</p>
+</header>
+
+<nav>
+    <a href="/">Tableau de bord</a>
+    <a href="/products">Produits</a>
+    <a href="/sales">Ventes</a>
+    <a href="/purchases">Achats</a>
+    <a href="/expenses">Dépenses</a>
+    <a href="/customers">Clients</a>
+    <a href="/intelligence">Nexus Intelligence</a>
+</nav>
+
+<div class="container">
+
+    <div class="welcome">
+        <h2>Tableau de bord</h2>
+        <p>Voici la situation actuelle de votre entreprise.</p>
+    </div>
+
+    <div class="cards">
+
+        <div class="card">
+            <h3>💰 Chiffre d'affaires</h3>
+            <div class="value">
+                {{ revenue|default(0) }} FCFA
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>🛒 Achats</h3>
+            <div class="value">
+                {{ purchases|default(0) }} FCFA
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>💸 Dépenses</h3>
+            <div class="value">
+                {{ expenses|default(0) }} FCFA
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>📈 Bénéfice</h3>
+
+            <div class="value {% if profit|default(0) >= 0 %}positive{% else %}negative{% endif %}">
+                {{ profit|default(0) }} FCFA
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>📊 Marge</h3>
+            <div class="value">
+                {{ margin|default(0) }} %
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>📦 Produits</h3>
+            <div class="value">
+                {{ products_count|default(0) }}
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>🏪 Stock total</h3>
+            <div class="value">
+                {{ stock_total|default(0) }}
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>👥 Clients</h3>
+            <div class="value">
+                {{ customers_count|default(0) }}
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>🧾 Ventes</h3>
+            <div class="value">
+                {{ sales_count|default(0) }}
+            </div>
+        </div>
+
+    </div>
+
+    <div class="status">
+
+        <h3>⚠️ État du stock</h3>
+
+        {% if low_stock|default(0) > 0 %}
+
+            <p class="negative">
+                {{ low_stock }} produit(s) nécessitent votre attention.
+            </p>
+
+        {% else %}
+
+            <p class="positive">
+                ✓ Votre stock est actuellement dans une situation normale.
+            </p>
+
+        {% endif %}
+
+    </div>
+
+    <div class="actions">
+
+        <a href="/products" class="button">
+            📦 Gérer les produits
+        </a>
+
+        <a href="/sales" class="button green">
+            💰 Gérer les ventes
+        </a>
+
+        <a href="/customers" class="button orange">
+            👥 Gérer les clients
+        </a>
+
+        <a href="/intelligence" class="button dark">
+            🧠 Nexus Intelligence
+        </a>
+
+    </div>
+
+</div>
+
+<footer>
+    Nexus Gestion © 2026 — Gestion intelligente des entreprises
+</footer>
+
+</body>
+</html>

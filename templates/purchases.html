@@ -1,0 +1,515 @@
+
+{% extends "base.html" %}
+
+{% block title %}
+Achats - Nexus Gestion
+{% endblock %}
+
+{% block content %}
+
+
+<section class="page-title">
+
+    <h2>🚚 Gestion des achats</h2>
+
+    <p>
+        Enregistrez et consultez les achats de votre entreprise.
+    </p>
+
+</section>
+
+
+<!-- =========================================
+     FORMULAIRE D'ACHAT
+========================================= -->
+
+<section class="section">
+
+    <div class="info-card">
+
+        <h2>➕ Enregistrer un achat</h2>
+
+
+        <form
+            action="/purchases/add"
+            method="POST"
+        >
+
+
+            <div>
+
+                <label>
+                    Produit
+                </label>
+
+
+                <select
+                    name="product_id"
+                    id="purchaseProduct"
+                    required
+                >
+
+                    <option value="">
+                        -- Choisir un produit --
+                    </option>
+
+
+                    {% for product in products %}
+
+                    <option
+                        value="{{ product['id'] }}"
+                        data-price="{{ product['purchase_price'] }}"
+                    >
+
+                        {{ product['name'] }}
+
+                        — Stock :
+                        {{ product['quantity'] }}
+
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <div>
+
+                <label>
+                    Quantité achetée
+                </label>
+
+
+                <input
+                    type="number"
+                    name="quantity"
+                    id="purchaseQuantity"
+                    min="1"
+                    required
+                >
+
+            </div>
+
+
+            <div>
+
+                <label>
+                    Prix d'achat unitaire
+                </label>
+
+
+                <input
+                    type="number"
+                    name="price"
+                    id="purchasePrice"
+                    readonly
+                >
+
+            </div>
+
+
+            <div>
+
+                <label>
+                    Total de l'achat
+                </label>
+
+
+                <input
+                    type="text"
+                    id="purchaseTotal"
+                    readonly
+                >
+
+            </div>
+
+
+            <button type="submit">
+
+                🚚 Enregistrer l'achat
+
+            </button>
+
+
+        </form>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================
+     RECHERCHE
+========================================= -->
+
+<section class="section">
+
+    <h2>
+        📋 Historique des achats
+    </h2>
+
+
+    <div class="search-box">
+
+        <input
+            type="text"
+            id="purchaseSearch"
+            placeholder="🔎 Rechercher un achat..."
+        >
+
+    </div>
+
+</section>
+
+
+<!-- =========================================
+     TOTAL AFFICHÉ
+========================================= -->
+
+<section class="section">
+
+    <div class="info-card">
+
+        <h3>
+            💰 Total affiché
+        </h3>
+
+
+        <strong id="purchaseDisplayedTotal">
+            0 FCFA
+        </strong>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================
+     TABLEAU DES ACHATS
+========================================= -->
+
+<section class="section">
+
+    <div class="table-container">
+
+
+        <table id="purchasesTable">
+
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Produit
+                    </th>
+
+                    <th>
+                        Quantité
+                    </th>
+
+                    <th>
+                        Prix unitaire
+                    </th>
+
+                    <th>
+                        Total
+                    </th>
+
+                    <th>
+                        Date
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+
+                {% for purchase in purchases %}
+
+                <tr>
+
+
+                    <td>
+                        {{ purchase["product_name"] }}
+                    </td>
+
+
+                    <td>
+                        {{ purchase["quantity"] }}
+                    </td>
+
+
+                    <td>
+
+                        {{ "{:,.0f}".format(
+                            purchase["price"]
+                        ).replace(",", " ") }}
+
+                        FCFA
+
+                    </td>
+
+
+                    <td class="purchase-total">
+
+                        {{ "{:,.0f}".format(
+                            purchase["quantity"]
+                            * purchase["price"]
+                        ).replace(",", " ") }}
+
+                        FCFA
+
+                    </td>
+
+
+                    <td>
+                        {{ purchase["date"] }}
+                    </td>
+
+
+                </tr>
+
+
+                {% else %}
+
+                <tr>
+
+                    <td colspan="5">
+
+                        Aucun achat enregistré.
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+
+            </tbody>
+
+
+        </table>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================
+     JAVASCRIPT
+========================================= -->
+
+<script>
+
+/* ==========================================
+   CALCUL AUTOMATIQUE DE L'ACHAT
+========================================== */
+
+const purchaseProduct =
+    document.getElementById(
+        "purchaseProduct"
+    );
+
+
+const purchaseQuantity =
+    document.getElementById(
+        "purchaseQuantity"
+    );
+
+
+const purchasePrice =
+    document.getElementById(
+        "purchasePrice"
+    );
+
+
+const purchaseTotal =
+    document.getElementById(
+        "purchaseTotal"
+    );
+
+
+function updatePurchase() {
+
+
+    const option =
+        purchaseProduct.options[
+            purchaseProduct.selectedIndex
+        ];
+
+
+    if (!option.value) {
+
+        purchasePrice.value = "";
+
+        purchaseTotal.value = "";
+
+        return;
+
+    }
+
+
+    const priceValue =
+        Number(
+            option.dataset.price
+        );
+
+
+    purchasePrice.value =
+        priceValue;
+
+
+    const quantityValue =
+        Number(
+            purchaseQuantity.value
+        );
+
+
+    if (quantityValue > 0) {
+
+        purchaseTotal.value =
+            (
+                priceValue *
+                quantityValue
+            ).toLocaleString(
+                "fr-FR"
+            ) + " FCFA";
+
+    } else {
+
+        purchaseTotal.value = "";
+
+    }
+
+}
+
+
+purchaseProduct.addEventListener(
+    "change",
+    updatePurchase
+);
+
+
+purchaseQuantity.addEventListener(
+    "input",
+    updatePurchase
+);
+
+
+/* ==========================================
+   RECHERCHE DES ACHATS
+========================================== */
+
+const purchaseSearch =
+    document.getElementById(
+        "purchaseSearch"
+    );
+
+
+const purchaseRows =
+    document.querySelectorAll(
+        "#purchasesTable tbody tr"
+    );
+
+
+const purchaseDisplayedTotal =
+    document.getElementById(
+        "purchaseDisplayedTotal"
+    );
+
+
+function updatePurchaseSearch() {
+
+
+    const value =
+        purchaseSearch.value
+        .toLowerCase()
+        .trim();
+
+
+    let totalAmount = 0;
+
+
+    purchaseRows.forEach(
+        function(row) {
+
+
+            const text =
+                row.textContent.toLowerCase();
+
+
+            if (
+                text.includes(value)
+                ||
+                value === ""
+            ) {
+
+
+                row.style.display = "";
+
+
+                const totalCell =
+                    row.querySelector(
+                        ".purchase-total"
+                    );
+
+
+                if (totalCell) {
+
+
+                    const amount =
+                        parseFloat(
+                            totalCell.textContent
+                            .replace(
+                                /[^0-9]/g,
+                                ""
+                            )
+                        );
+
+
+                    if (!isNaN(amount)) {
+
+                        totalAmount += amount;
+
+                    }
+
+                }
+
+
+            } else {
+
+                row.style.display = "none";
+
+            }
+
+        }
+    );
+
+
+    purchaseDisplayedTotal.textContent =
+        totalAmount.toLocaleString(
+            "fr-FR"
+        ) + " FCFA";
+
+}
+
+
+purchaseSearch.addEventListener(
+    "input",
+    updatePurchaseSearch
+);
+
+
+updatePurchaseSearch();
+
+</script>
+
+
+{% endblock %}
+

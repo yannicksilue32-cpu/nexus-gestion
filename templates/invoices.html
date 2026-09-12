@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Factures — Nexus Gestion</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f7fb;
+            color: #172033;
+        }
+
+        .top {
+            background: #111827;
+            color: white;
+            padding: 18px 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .brand span {
+            color: #60a5fa;
+        }
+
+        .nav a {
+            color: #dbeafe;
+            text-decoration: none;
+            margin-left: 18px;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 18px;
+        }
+
+        h1 {
+            margin: 0 0 6px;
+        }
+
+        .subtitle {
+            color: #64748b;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            padding: 22px;
+            margin-bottom: 22px;
+            box-shadow: 0 4px 18px rgba(15, 23, 42, 0.05);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        input,
+        select,
+        button {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 9px;
+            font: inherit;
+        }
+
+        button,
+        .btn {
+            background: #2563eb;
+            color: white;
+            border: 0;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        button:hover,
+        .btn:hover {
+            background: #1d4ed8;
+        }
+
+        .line {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr auto;
+            gap: 10px;
+            margin-top: 12px;
+            align-items: end;
+        }
+
+        .remove {
+            background: #dc2626;
+            width: auto;
+            padding: 11px 14px;
+        }
+
+        .remove:hover {
+            background: #b91c1c;
+        }
+
+        .add {
+            width: auto;
+            margin-top: 12px;
+            background: #475569;
+            padding: 10px 14px;
+        }
+
+        .submit {
+            margin-top: 18px;
+            max-width: 220px;
+            font-weight: 700;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 13px 10px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th {
+            background: #f8fafc;
+            color: #475569;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .paid {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .unpaid {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .actions {
+            display: flex;
+            gap: 7px;
+            flex-wrap: wrap;
+        }
+
+        .actions a {
+            padding: 7px 10px;
+            border-radius: 7px;
+            font-size: 12px;
+            text-decoration: none;
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
+        .empty {
+            text-align: center;
+            color: #64748b;
+            padding: 30px;
+        }
+
+        .flash {
+            padding: 12px 15px;
+            border-radius: 9px;
+            margin-bottom: 12px;
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+
+        @media (max-width: 800px) {
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .line {
+                grid-template-columns: 1fr;
+            }
+
+            .top {
+                align-items: flex-start;
+                gap: 10px;
+                flex-direction: column;
+            }
+
+            .nav a {
+                margin: 0 12px 0 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="top">
+
+    <div class="brand">
+        Nexus <span>Gestion</span>
+    </div>
+
+    <nav class="nav">
+
+        <a href="{{ url_for('dashboard') }}">
+            Tableau de bord
+        </a>
+
+        <a href="{{ url_for('products') }}">
+            Produits
+        </a>
+
+        <a href="{{ url_for('customers') }}">
+            Clients
+        </a>
+
+        <a href="{{ url_for('sales') }}">
+            Ventes
+        </a>
+
+        <a href="{{ url_for('invoices') }}">
+            Factures
+        </a>
+
+    </nav>
+
+</header>
+
+
+<main class="container">
+
+    <h1>Facturation</h1>
+
+    <p class="subtitle">
+        Créez, consultez et suivez vos factures.
+    </p>
+
+
+    <!-- Messages -->
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+
+        {% for category, message in messages %}
+
+            <div class="flash">
+                {{ message }}
+            </div>
+
+        {% endfor %}
+
+    {% endwith %}
+
+
+
+    <!-- ============================= -->
+    <!-- NOUVELLE FACTURE -->
+    <!-- ============================= -->
+
+    <section class="card">
+
+        <h2>Nouvelle facture</h2>
+
+
+        <form
+            method="POST"
+            action="{{ url_for('create_invoice') }}"
+        >
+
+
+            <div class="grid">
+
+
+                <!-- Client -->
+
+                <div>
+
+                    <label for="customer_id">
+                        Client
+                    </label>
+
+                    <select
+                        id="customer_id"
+                        name="customer_id"
+                    >
+
+                        <option value="0">
+                            Client comptoir / sans client
+                        </option>
+
+
+                        {% for customer in customers %}
+
+                            <option value="{{ customer.id }}">
+
+                                {{ customer.name }}
+
+                                {% if customer.phone %}
+                                    — {{ customer.phone }}
+                                {% endif %}
+
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <!-- Date -->
+
+                <div>
+
+                    <label for="invoice_date">
+                        Date
+                    </label>
+
+                    <input
+                        id="invoice_date"
+                        type="date"
+                        name="date"
+                    >
+
+                </div>
+
+            </div>
+
+
+
+            <!-- Produits -->
+
+            <div id="lines">
+
+
+                <div class="line invoice-line">
+
+
+                    <!-- Produit -->
+
+                    <div>
+
+                        <label>
+                            Produit
+                        </label>
+
+                        <select
+                            name="product_id"
+                            required
+                        >
+
+                            <option value="">
+                                Sélectionner un produit
+                            </option>
+
+
+                            {% for product in products %}
+
+                                <option value="{{ product.id }}">
+
+                                    {{ product.name }}
+
+                                    —
+                                    stock:
+                                    {{ product.quantity }}
+
+                                    —
+                                    {{ product.selling_price }}
+                                    FCFA
+
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+
+                    <!-- Quantité -->
+
+                    <div>
+
+                        <label>
+                            Quantité
+                        </label>
+
+                        <input
+                            type="number"
+                            name="quantity"
+                            min="1"
+                            value="1"
+                            required
+                        >
+
+                    </div>
+
+
+
+                    <!-- Prix -->
+
+                    <div>
+
+                        <label>
+                            Prix unitaire
+                        </label>
+
+                        <input
+                            type="number"
+                            name="price"
+                            min="0"
+                            step="0.01"
+                            placeholder="Prix produit"
+                        >
+
+                    </div>
+
+
+
+                    <!-- Supprimer -->
+
+                    <button
+                        type="button"
+                        class="remove"
+                        onclick="removeLine(this)"
+                    >
+                        ×
+                    </button>
+
+
+                </div>
+
+            </div>
+
+
+
+            <!-- Ajouter produit -->
+
+            <button
+                type="button"
+                class="add"
+                onclick="addLine()"
+            >
+                + Ajouter un produit
+            </button>
+
+
+            <br>
+
+
+            <!-- Créer -->
+
+            <button
+                type="submit"
+                class="submit"
+            >
+                Créer la facture
+            </button>
+
+
+        </form>
+
+    </section>
+
+
+
+    <!-- ============================= -->
+    <!-- LISTE DES FACTURES -->
+    <!-- ============================= -->
+
+    <section class="card">
+
+        <h2>
+            Factures récentes
+        </h2>
+
+
+        {% if invoices %}
+
+
+            <div style="overflow-x:auto">
+
+                <table>
+
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                N°
+                            </th>
+
+                            <th>
+                                Client
+                            </th>
+
+                            <th>
+                                Date
+                            </th>
+
+                            <th>
+                                Total
+                            </th>
+
+                            <th>
+                                Statut
+                            </th>
+
+                            <th>
+                                Actions
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+
+                    {% for invoice in invoices %}
+
+                        <tr>
+
+
+                            <!-- Numéro -->
+
+                            <td>
+
+                                <strong>
+                                    {{ invoice.invoice_number }}
+                                </strong>
+
+                            </td>
+
+
+                            <!-- Client -->
+
+                            <td>
+
+                                {{ invoice.customer_name
+                                   or
+                                   'Client comptoir'
+                                }}
+
+                            </td>
+
+
+                            <!-- Date -->
+
+                            <td>
+
+                                {{ invoice.date }}
+
+                            </td>
+
+
+                            <!-- Total -->
+
+                            <td>
+
+                                {{
+                                    "{:,.0f}".format(
+                                        invoice.total|float
+                                    ).replace(",", " ")
+                                }}
+
+                                FCFA
+
+                            </td>
+
+
+                            <!-- Statut -->
+
+                            <td>
+
+
+                                {% if invoice.status == 'Payée' %}
+
+                                    <span class="status paid">
+                                        Payée
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="status unpaid">
+
+                                        {{
+                                            invoice.status
+                                            or
+                                            'Impayée'
+                                        }}
+
+                                    </span>
+
+                                {% endif %}
+
+
+                            </td>
+
+
+                            <!-- Actions -->
+
+                            <td>
+
+                                <div class="actions">
+
+
+                                    <a
+                                        href="{{
+                                            url_for(
+                                                'invoice_detail',
+                                                invoice_id=invoice.id
+                                            )
+                                        }}"
+                                    >
+                                        Voir
+                                    </a>
+
+
+                                    <a
+                                        href="{{
+                                            url_for(
+                                                'invoice_print',
+                                                invoice_id=invoice.id
+                                            )
+                                        }}"
+                                    >
+                                        Imprimer
+                                    </a>
+
+
+                                    {% if invoice.status != 'Payée' %}
+
+                                        <a
+                                            href="{{
+                                                url_for(
+                                                    'mark_invoice_paid',
+                                                    invoice_id=invoice.id
+                                                )
+                                            }}"
+                                        >
+                                            Marquer payée
+                                        </a>
+
+                                    {% endif %}
+
+
+                                </div>
+
+                            </td>
+
+
+                        </tr>
+
+                    {% endfor %}
+
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+        {% else %}
+
+
+            <div class="empty">
+
+                Aucune facture pour le moment.
+
+            </div>
+
+
+        {% endif %}
+
+
+    </section>
+
+</main>
+
+
+
+<script>
+
+
+/* ==========================================
+   AJOUTER UNE LIGNE DE PRODUIT
+   ========================================== */
+
+function addLine() {
+
+    const container =
+        document.getElementById("lines");
+
+    const first =
+        container.querySelector(".invoice-line");
+
+    const clone =
+        first.cloneNode(true);
+
+
+    /*
+       Réinitialisation des champs
+    */
+
+    clone
+        .querySelectorAll("input")
+        .forEach(function(input) {
+
+            if (input.name === "quantity") {
+
+                input.value = 1;
+
+            } else {
+
+                input.value = "";
+
+            }
+
+        });
+
+
+    /*
+       Réinitialisation du produit
+    */
+
+    clone
+        .querySelector("select")
+        .selectedIndex = 0;
+
+
+    /*
+       Ajout de la ligne
+    */
+
+    container.appendChild(clone);
+
+}
+
+
+
+/* ==========================================
+   SUPPRIMER UNE LIGNE
+   ========================================== */
+
+function removeLine(button) {
+
+    const lines =
+        document.querySelectorAll(
+            ".invoice-line"
+        );
+
+
+    /*
+       Toujours garder au moins
+       une ligne.
+    */
+
+    if (lines.length > 1) {
+
+        button
+            .closest(".invoice-line")
+            .remove();
+
+    }
+
+}
+
+
+</script>
+
+
+</body>
+</html>

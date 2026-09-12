@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Paramètres — Nexus Gestion{% endblock %}
+{% block content %}
+<style>.settings{max-width:800px;background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:24px}.settings form{display:grid;gap:13px}.settings input{padding:12px;border:1px solid #d1d5db;border-radius:9px}.settings button{padding:12px;border:0;border-radius:9px;cursor:pointer}</style>
+<h1>⚙️ Paramètres de l'entreprise</h1><p>Ces informations peuvent être utilisées pour personnaliser Nexus Gestion.</p><div class="settings"><form method="post"><label>Nom de l'entreprise<input name="company_name" value="{{ settings.company_name if settings else 'Nexus Gestion' }}" required></label><label>Téléphone<input name="company_phone" value="{{ settings.company_phone if settings else '' }}"></label><label>Email<input type="email" name="company_email" value="{{ settings.company_email if settings else '' }}"></label><label>Adresse<input name="company_address" value="{{ settings.company_address if settings else '' }}"></label><label>Devise<input name="currency" value="{{ settings.currency if settings else 'FCFA' }}"></label><button type="submit">Enregistrer</button></form></div>
+{% endblock %}

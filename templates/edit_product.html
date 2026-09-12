@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>Modifier un produit</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<header>
+
+    <h1>NEXUS GESTION</h1>
+
+    <p>Modifier un produit</p>
+
+</header>
+
+<main>
+
+    <h2>Modifier : {{ product["name"] }}</h2>
+
+    <form method="POST">
+
+        <label>Nom</label>
+
+        <input
+            type="text"
+            name="name"
+            value="{{ product['name'] }}"
+            required
+        >
+
+
+        <label>Catégorie</label>
+
+        <input
+            type="text"
+            name="category"
+            value="{{ product['category'] }}"
+        >
+
+
+        <label>Prix d'achat</label>
+
+        <input
+            type="number"
+            name="purchase_price"
+            value="{{ product['purchase_price'] }}"
+            required
+        >
+
+
+        <label>Prix de vente</label>
+
+        <input
+            type="number"
+            name="selling_price"
+            value="{{ product['selling_price'] }}"
+            required
+        >
+
+
+        <label>Quantité</label>
+
+        <input
+            type="number"
+            name="quantity"
+            value="{{ product['quantity'] }}"
+            required
+        >
+
+
+        <label>Seuil d'alerte</label>
+
+        <input
+            type="number"
+            name="stock_alert"
+            value="{{ product['stock_alert'] }}"
+        >
+
+
+        <button type="submit">
+
+            Enregistrer les modifications
+
+        </button>
+
+    </form>
+
+    <br>
+
+    <a href="/products">
+
+        ← Retour aux produits
+
+    </a>
+
+</main>
+
+</body>
+
+</html>
+<a href="/customers">👥 Clients</a>

@@ -1,0 +1,867 @@
+
+{% extends "base.html" %}
+
+{% block title %}Dashboard — Nexus Gestion{% endblock %}
+
+{% block content %}
+
+<!-- ============================================================
+     EN-TÊTE
+============================================================ -->
+
+<div class="page-header">
+    <div>
+        <h1>Tableau de bord</h1>
+        <p>Vue d’ensemble de votre activité.</p>
+    </div>
+</div>
+
+
+<!-- ============================================================
+     KPI PRINCIPAUX
+============================================================ -->
+
+<div class="kpi-grid">
+
+    <!-- CHIFFRE D'AFFAIRES -->
+    <div class="kpi-card">
+        <div class="kpi-icon">💰</div>
+
+        <div class="kpi-content">
+            <span class="kpi-label">
+                CHIFFRE D’AFFAIRES
+            </span>
+
+            <strong>
+                {{ revenue|money }}
+            </strong>
+
+            <small>
+                Ventes réalisées
+            </small>
+        </div>
+    </div>
+
+
+    <!-- BÉNÉFICE -->
+    <div class="kpi-card">
+        <div class="kpi-icon">📈</div>
+
+        <div class="kpi-content">
+            <span class="kpi-label">
+                BÉNÉFICE
+            </span>
+
+            <strong>
+                {{ profit|money }}
+            </strong>
+
+            <small>
+                Résultat actuel
+            </small>
+        </div>
+    </div>
+
+
+    <!-- STOCK -->
+    <div class="kpi-card">
+        <div class="kpi-icon">📦</div>
+
+        <div class="kpi-content">
+            <span class="kpi-label">
+                STOCK
+            </span>
+
+            <strong>
+                {{ stock_total }}
+            </strong>
+
+            <small>
+                Unités disponibles
+            </small>
+
+            <a href="{{ url_for('stock') }}">
+                Gérer le stock →
+            </a>
+        </div>
+    </div>
+
+
+    <!-- CLIENTS -->
+    <div class="kpi-card">
+        <div class="kpi-icon">👥</div>
+
+        <div class="kpi-content">
+            <span class="kpi-label">
+                CLIENTS
+            </span>
+
+            <strong>
+                {{ customers_count }}
+            </strong>
+
+            <small>
+                Clients enregistrés
+            </small>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- ============================================================
+     ACTIVITÉ
+============================================================ -->
+
+<section class="dashboard-section">
+
+    <div class="section-header">
+        <div>
+            <h2>Activité</h2>
+
+            <p>
+                Les principaux indicateurs de votre entreprise.
+            </p>
+        </div>
+    </div>
+
+
+    <div class="stats-grid">
+
+        <!-- VENTES -->
+        <div class="stat-card">
+
+            <span>
+                VENTES
+            </span>
+
+            <strong>
+                {{ sales_count }}
+            </strong>
+
+            <small>
+                Transactions enregistrées
+            </small>
+
+            <a href="{{ url_for('sales') }}">
+                Voir les ventes →
+            </a>
+
+        </div>
+
+
+        <!-- PRODUITS -->
+        <div class="stat-card">
+
+            <span>
+                PRODUITS
+            </span>
+
+            <strong>
+                {{ products_count }}
+            </strong>
+
+            <small>
+                Produits enregistrés
+            </small>
+
+            <a href="{{ url_for('products') }}">
+                Gérer les produits →
+            </a>
+
+        </div>
+
+
+        <!-- ACHATS -->
+        <div class="stat-card">
+
+            <span>
+                ACHATS
+            </span>
+
+            <strong>
+                {{ purchases|money }}
+            </strong>
+
+            <small>
+                Valeur des achats
+            </small>
+
+            <a href="{{ url_for('purchases') }}">
+                Voir les achats →
+            </a>
+
+        </div>
+
+
+        <!-- STOCK -->
+        <div class="stat-card">
+
+            <span>
+                STOCK
+            </span>
+
+            <strong>
+                {{ stock_total }}
+            </strong>
+
+            <small>
+                Unités disponibles
+            </small>
+
+            <a href="{{ url_for('stock') }}">
+                Gérer le stock →
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ============================================================
+     ACTIONS RAPIDES
+============================================================ -->
+
+<section class="dashboard-section">
+
+    <div class="section-header">
+
+        <div>
+            <h2>Actions rapides</h2>
+
+            <p>
+                Accédez rapidement aux fonctions principales.
+            </p>
+        </div>
+
+    </div>
+
+
+    <div class="quick-actions">
+
+        <!-- PRODUITS -->
+
+        <a
+            href="{{ url_for('products') }}"
+            class="quick-action"
+        >
+
+            <div class="quick-action-icon">
+                📦
+            </div>
+
+            <div>
+
+                <strong>
+                    Produits
+                </strong>
+
+                <span>
+                    Gérer votre catalogue
+                </span>
+
+            </div>
+
+            <span class="quick-arrow">
+                →
+            </span>
+
+        </a>
+
+
+        <!-- STOCK -->
+
+        <a
+            href="{{ url_for('stock') }}"
+            class="quick-action"
+        >
+
+            <div class="quick-action-icon orange">
+                📦
+            </div>
+
+            <div>
+
+                <strong>
+                    Gestion du stock
+                </strong>
+
+                <span>
+                    Entrées, sorties et mouvements
+                </span>
+
+            </div>
+
+            <span class="quick-arrow">
+                →
+            </span>
+
+        </a>
+
+
+        <!-- VENTE -->
+
+        <a
+            href="{{ url_for('add_sale') }}"
+            class="quick-action"
+        >
+
+            <div class="quick-action-icon green">
+                💰
+            </div>
+
+            <div>
+
+                <strong>
+                    Nouvelle vente
+                </strong>
+
+                <span>
+                    Enregistrer une vente
+                </span>
+
+            </div>
+
+            <span class="quick-arrow">
+                →
+            </span>
+
+        </a>
+
+
+        <!-- ACHATS -->
+
+        <a
+            href="{{ url_for('purchases') }}"
+            class="quick-action"
+        >
+
+            <div class="quick-action-icon blue">
+                🛒
+            </div>
+
+            <div>
+
+                <strong>
+                    Achats
+                </strong>
+
+                <span>
+                    Gérer les achats
+                </span>
+
+            </div>
+
+            <span class="quick-arrow">
+                →
+            </span>
+
+        </a>
+
+
+        <!-- CLIENTS -->
+
+        <a
+            href="{{ url_for('customers') }}"
+            class="quick-action"
+        >
+
+            <div class="quick-action-icon purple">
+                👥
+            </div>
+
+            <div>
+
+                <strong>
+                    Clients
+                </strong>
+
+                <span>
+                    Gérer les clients
+                </span>
+
+            </div>
+
+            <span class="quick-arrow">
+                →
+            </span>
+
+        </a>
+
+
+        <!-- FACTURATION -->
+
+        <a
+            href="{{ url_for('invoices') }}"
+            class="quick-action"
+        >
+
+            <div class="quick-action-icon yellow">
+                🧾
+            </div>
+
+            <div>
+
+                <strong>
+                    Facturation
+                </strong>
+
+                <span>
+                    Créer et gérer les factures
+                </span>
+
+            </div>
+
+            <span class="quick-arrow">
+                →
+            </span>
+
+        </a>
+
+
+        <!-- NEXUS INTELLIGENCE -->
+
+        <a
+            href="{{ url_for('intelligence') }}"
+            class="quick-action"
+        >
+
+            <div class="quick-action-icon violet">
+                🧠
+            </div>
+
+            <div>
+
+                <strong>
+                    Nexus Intelligence
+                </strong>
+
+                <span>
+                    Analyser les performances
+                </span>
+
+            </div>
+
+            <span class="quick-arrow">
+                →
+            </span>
+
+        </a>
+
+    </div>
+
+</section>
+
+
+<!-- ============================================================
+     PERFORMANCE FINANCIÈRE
+============================================================ -->
+
+<section class="dashboard-section">
+
+    <div class="section-header">
+
+        <div>
+
+            <h2>
+                Performance financière
+            </h2>
+
+            <p>
+                Résumé financier de votre activité.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="financial-grid">
+
+        <!-- CA -->
+
+        <div class="financial-card">
+
+            <span>
+                Chiffre d’affaires
+            </span>
+
+            <strong>
+                {{ revenue|money }}
+            </strong>
+
+        </div>
+
+
+        <!-- ACHATS -->
+
+        <div class="financial-card">
+
+            <span>
+                Achats
+            </span>
+
+            <strong>
+                {{ purchases|money }}
+            </strong>
+
+        </div>
+
+
+        <!-- DÉPENSES -->
+
+        <div class="financial-card">
+
+            <span>
+                Dépenses
+            </span>
+
+            <strong>
+                {{ expenses|money }}
+            </strong>
+
+        </div>
+
+
+        <!-- BÉNÉFICE -->
+
+        <div class="financial-card">
+
+            <span>
+                Bénéfice
+            </span>
+
+            <strong>
+                {{ profit|money }}
+            </strong>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ============================================================
+     NEXUS INTELLIGENCE
+============================================================ -->
+
+<section class="dashboard-section">
+
+    <div class="section-header">
+
+        <div>
+
+            <h2>
+                🧠 Nexus Intelligence
+            </h2>
+
+            <p>
+                Analyse automatique de votre activité.
+            </p>
+
+        </div>
+
+
+        <a
+            href="{{ url_for('intelligence') }}"
+            class="section-link"
+        >
+            Voir l’analyse →
+        </a>
+
+    </div>
+
+
+    <div class="intelligence-preview">
+
+        <div class="intelligence-item">
+
+            <span>
+                Chiffre d’affaires
+            </span>
+
+            <strong>
+                {{ revenue|money }}
+            </strong>
+
+        </div>
+
+
+        <div class="intelligence-item">
+
+            <span>
+                Bénéfice
+            </span>
+
+            <strong>
+                {{ profit|money }}
+            </strong>
+
+        </div>
+
+
+        <div class="intelligence-item">
+
+            <span>
+                Marge
+            </span>
+
+            <strong>
+                {{ margin }}%
+            </strong>
+
+        </div>
+
+
+        <div class="intelligence-item">
+
+            <span>
+                État
+            </span>
+
+            <strong>
+                {{ analyse }}
+            </strong>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ============================================================
+     STOCK + VENTES RÉCENTES
+============================================================ -->
+
+<div class="dashboard-columns">
+
+
+    <!-- STOCK -->
+
+    <section class="dashboard-section">
+
+        <div class="section-header">
+
+            <div>
+
+                <h2>
+                    📦 État du stock
+                </h2>
+
+                <p>
+                    Produits nécessitant votre attention.
+                </p>
+
+            </div>
+
+
+            <a
+                href="{{ url_for('stock') }}"
+                class="section-link"
+            >
+                Voir le stock →
+            </a>
+
+        </div>
+
+
+        {% if produits_stock_faible %}
+
+            <div class="list-container">
+
+                {% for product in produits_stock_faible %}
+
+                    <div class="list-item">
+
+                        <div>
+
+                            <strong>
+                                {{ product.name }}
+                            </strong>
+
+                            <span>
+                                Seuil :
+                                {{ product.stock_alert }}
+                            </span>
+
+                        </div>
+
+
+                        <div class="list-value">
+
+                            {{ product.quantity }}
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-state">
+
+                <span>
+                    ✅
+                </span>
+
+                <strong>
+                    Stock correct
+                </strong>
+
+                <p>
+                    Aucun produit n’est actuellement en stock faible.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <!-- VENTES RÉCENTES -->
+
+    <section class="dashboard-section">
+
+        <div class="section-header">
+
+            <div>
+
+                <h2>
+                    💰 Ventes récentes
+                </h2>
+
+                <p>
+                    Dernières transactions enregistrées.
+                </p>
+
+            </div>
+
+
+            <a
+                href="{{ url_for('sales') }}"
+                class="section-link"
+            >
+                Voir les ventes →
+            </a>
+
+        </div>
+
+
+        {% if ventes_recentes %}
+
+            <div class="list-container">
+
+                {% for sale in ventes_recentes %}
+
+                    <div class="list-item">
+
+                        <div>
+
+                            <strong>
+                                {{ sale.product_name }}
+                            </strong>
+
+                            <span>
+                                {{ sale.quantity }} unité(s)
+                            </span>
+
+                        </div>
+
+
+                        <div class="list-value">
+
+                            {{ (sale.price * sale.quantity)|money }}
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-state">
+
+                <span>
+                    📊
+                </span>
+
+                <strong>
+                    Aucune vente
+                </strong>
+
+                <p>
+                    Les ventes récentes apparaîtront ici.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+</div>
+
+
+<!-- ============================================================
+     RÉSUMÉ FINAL
+============================================================ -->
+
+<section class="dashboard-section dashboard-summary">
+
+    <div class="summary-content">
+
+        <div>
+
+            <span class="summary-label">
+                RÉSUMÉ DE L’ACTIVITÉ
+            </span>
+
+
+            <h2>
+
+                Votre entreprise compte
+                {{ products_count }}
+                produit(s) et
+                {{ customers_count }}
+                client(s).
+
+            </h2>
+
+
+            <p>
+
+                Continuez à suivre vos ventes,
+                vos dépenses, votre stock et votre
+                rentabilité depuis Nexus Gestion.
+
+            </p>
+
+        </div>
+
+
+        <a
+            href="{{ url_for('intelligence') }}"
+            class="primary-button"
+        >
+
+            🧠 Analyser mon activité
+
+        </a>
+
+    </div>
+
+</section>
+
+{% endblock %}
+

@@ -1,0 +1,1338 @@
+
+{% extends "base.html" %}
+
+{% block title %}Nexus Intelligence — Nexus Gestion{% endblock %}
+
+{% block content %}
+
+<style>
+/* =========================================================
+   NEXUS INTELLIGENCE — STYLE DE LA PAGE
+   Le layout principal/sidebar vient de base.html
+   ========================================================= */
+
+.intel-page {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    width: 100%;
+}
+
+.intel-hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.intel-hero-main {
+    flex: 1;
+    min-width: 280px;
+}
+
+.intel-title {
+    margin: 0;
+    font-size: 30px;
+    font-weight: 800;
+}
+
+.intel-subtitle {
+    margin: 7px 0 0;
+    opacity: .68;
+    font-size: 14px;
+}
+
+.intel-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: 12px;
+    padding: 7px 12px;
+    border-radius: 999px;
+    background: rgba(37, 99, 235, .10);
+    color: #2563eb;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.intel-score {
+    min-width: 210px;
+    padding: 20px;
+    border-radius: 18px;
+    background: var(--card-bg, #fff);
+    border: 1px solid rgba(0,0,0,.08);
+    box-shadow: 0 8px 24px rgba(0,0,0,.05);
+    text-align: center;
+}
+
+.intel-score-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    opacity: .6;
+    font-weight: 800;
+}
+
+.intel-score-value {
+    font-size: 46px;
+    line-height: 1;
+    margin: 8px 0;
+    font-weight: 900;
+}
+
+.intel-score-status {
+    font-weight: 800;
+    font-size: 14px;
+}
+
+/* Diagnostic */
+
+.intel-diagnostic {
+    padding: 22px;
+    border-radius: 18px;
+    background: var(--card-bg, #fff);
+    border: 1px solid rgba(0,0,0,.08);
+    box-shadow: 0 8px 24px rgba(0,0,0,.04);
+}
+
+.intel-diagnostic-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+}
+
+.intel-diagnostic-head h2 {
+    margin: 0;
+    font-size: 19px;
+}
+
+.intel-diagnostic-text {
+    margin: 0;
+    white-space: pre-line;
+    line-height: 1.7;
+    opacity: .82;
+    font-size: 14px;
+}
+
+/* Sections */
+
+.intel-section {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.intel-section-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.intel-section-title h2 {
+    margin: 0;
+    font-size: 19px;
+}
+
+.intel-section-title span {
+    font-size: 12px;
+    opacity: .55;
+}
+
+/* Cards */
+
+.intel-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.intel-card {
+    padding: 18px;
+    border-radius: 16px;
+    background: var(--card-bg, #fff);
+    border: 1px solid rgba(0,0,0,.08);
+    box-shadow: 0 7px 20px rgba(0,0,0,.04);
+    min-width: 0;
+}
+
+.intel-card-label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    opacity: .58;
+    font-weight: 800;
+}
+
+.intel-card-value {
+    display: block;
+    margin-top: 8px;
+    font-size: 23px;
+    font-weight: 900;
+    word-break: break-word;
+}
+
+.intel-card-description {
+    display: block;
+    margin-top: 5px;
+    font-size: 12px;
+    opacity: .58;
+}
+
+.intel-card-positive {
+    border-top: 3px solid #16a34a;
+}
+
+.intel-card-negative {
+    border-top: 3px solid #dc2626;
+}
+
+.intel-card-warning {
+    border-top: 3px solid #f59e0b;
+}
+
+.intel-card-neutral {
+    border-top: 3px solid #2563eb;
+}
+
+/* Alerts */
+
+.intel-alerts {
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+}
+
+.intel-alert {
+    padding: 16px 18px;
+    border-radius: 14px;
+    border: 1px solid rgba(0,0,0,.08);
+    background: var(--card-bg, #fff);
+}
+
+.intel-alert-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.intel-alert-title strong {
+    font-size: 14px;
+}
+
+.intel-alert-message {
+    margin: 7px 0 0;
+    font-size: 13px;
+    line-height: 1.55;
+    opacity: .72;
+}
+
+.intel-alert-type {
+    display: inline-flex;
+    padding: 5px 9px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.intel-alert-danger {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.intel-alert-warning {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.intel-alert-info {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.intel-alert-success {
+    background: #dcfce7;
+    color: #166534;
+}
+
+/* Recommendations */
+
+.intel-recommendations {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.intel-recommendation {
+    padding: 18px;
+    border-radius: 16px;
+    background: var(--card-bg, #fff);
+    border: 1px solid rgba(0,0,0,.08);
+    box-shadow: 0 7px 20px rgba(0,0,0,.04);
+}
+
+.intel-recommendation-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+.intel-recommendation h3 {
+    margin: 0;
+    font-size: 15px;
+}
+
+.intel-recommendation p {
+    margin: 8px 0 0;
+    font-size: 13px;
+    line-height: 1.55;
+    opacity: .72;
+}
+
+.intel-priority {
+    padding: 5px 8px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 900;
+    white-space: nowrap;
+}
+
+/* Tables */
+
+.intel-table-box {
+    width: 100%;
+    overflow-x: auto;
+    border-radius: 16px;
+    background: var(--card-bg, #fff);
+    border: 1px solid rgba(0,0,0,.08);
+    box-shadow: 0 7px 20px rgba(0,0,0,.04);
+}
+
+.intel-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 650px;
+}
+
+.intel-table th,
+.intel-table td {
+    padding: 12px 14px;
+    text-align: left;
+    border-bottom: 1px solid rgba(0,0,0,.07);
+    font-size: 13px;
+}
+
+.intel-table th {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    opacity: .58;
+}
+
+.intel-table tr:last-child td {
+    border-bottom: 0;
+}
+
+.intel-table td.num {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.intel-product-name {
+    font-weight: 800;
+}
+
+.intel-status {
+    display: inline-flex;
+    padding: 5px 9px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 900;
+}
+
+/* Forecast */
+
+.intel-forecast {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.intel-forecast-card {
+    padding: 20px;
+    border-radius: 17px;
+    background: var(--card-bg, #fff);
+    border: 1px solid rgba(0,0,0,.08);
+    box-shadow: 0 7px 20px rgba(0,0,0,.04);
+}
+
+.intel-forecast-card small {
+    display: block;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    font-size: 10px;
+    font-weight: 800;
+    opacity: .58;
+}
+
+.intel-forecast-card strong {
+    display: block;
+    margin-top: 8px;
+    font-size: 25px;
+    font-weight: 900;
+}
+
+.intel-forecast-card span {
+    display: block;
+    margin-top: 5px;
+    font-size: 12px;
+    opacity: .58;
+}
+
+/* Empty */
+
+.intel-empty {
+    padding: 28px;
+    text-align: center;
+    border-radius: 15px;
+    background: var(--card-bg, #fff);
+    border: 1px dashed rgba(0,0,0,.16);
+    opacity: .65;
+}
+
+/* Responsive */
+
+@media(max-width:1100px) {
+    .intel-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .intel-forecast {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media(max-width:750px) {
+    .intel-grid,
+    .intel-recommendations,
+    .intel-forecast {
+        grid-template-columns: 1fr;
+    }
+
+    .intel-title {
+        font-size: 25px;
+    }
+
+    .intel-score {
+        width: 100%;
+        box-sizing: border-box;
+    }
+}
+</style>
+
+<div class="intel-page">
+
+    <!-- =====================================================
+         EN-TÊTE
+         ===================================================== -->
+
+    <div class="intel-hero">
+
+        <div class="intel-hero-main">
+
+            <h1 class="intel-title">
+                🧠 Nexus Intelligence
+            </h1>
+
+            <p class="intel-subtitle">
+                Analyse intelligente de la santé économique,
+                commerciale et opérationnelle de votre entreprise.
+            </p>
+
+            <div class="intel-badge">
+                ⚡ Analyse automatique
+            </div>
+
+        </div>
+
+        <div class="intel-score">
+
+            <div class="intel-score-label">
+                Score de santé
+            </div>
+
+            <div class="intel-score-value">
+                {{ score }}/100
+            </div>
+
+            <div class="intel-score-status">
+                {{ health_status }}
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         DIAGNOSTIC
+         ===================================================== -->
+
+    <section class="intel-diagnostic">
+
+        <div class="intel-diagnostic-head">
+
+            <h2>
+                🔎 Diagnostic global
+            </h2>
+
+            <span class="intel-status">
+                Analyse Nexus Intelligence
+            </span>
+
+        </div>
+
+        <p class="intel-diagnostic-text">
+{{ diagnostic }}
+        </p>
+
+    </section>
+
+
+    <!-- =====================================================
+         FINANCES
+         ===================================================== -->
+
+    <section class="intel-section">
+
+        <div class="intel-section-title">
+            <h2>💰 Situation financière</h2>
+            <span>Indicateurs financiers</span>
+        </div>
+
+        <div class="intel-grid">
+
+            <div class="intel-card intel-card-neutral">
+                <span class="intel-card-label">
+                    Chiffre d'affaires
+                </span>
+
+                <strong class="intel-card-value">
+                    {{ analysis.revenue|money }} FCFA
+                </strong>
+
+                <span class="intel-card-description">
+                    Revenus générés
+                </span>
+            </div>
+
+            <div class="intel-card {% if analysis.net_profit >= 0 %}intel-card-positive{% else %}intel-card-negative{% endif %}">
+                <span class="intel-card-label">
+                    Bénéfice net
+                </span>
+
+                <strong class="intel-card-value">
+                    {{ analysis.net_profit|money }} FCFA
+                </strong>
+
+                <span class="intel-card-description">
+                    Résultat après dépenses
+                </span>
+            </div>
+
+            <div class="intel-card intel-card-warning">
+                <span class="intel-card-label">
+                    Marge nette
+                </span>
+
+                <strong class="intel-card-value">
+                    {{ "%.1f"|format(analysis.margin|float) }} %
+                </strong>
+
+                <span class="intel-card-description">
+                    Rentabilité globale
+                </span>
+            </div>
+
+            <div class="intel-card {% if analysis.revenue_growth >= 0 %}intel-card-positive{% else %}intel-card-negative{% endif %}">
+                <span class="intel-card-label">
+                    Croissance
+                </span>
+
+                <strong class="intel-card-value">
+                    {{ "%.1f"|format(analysis.revenue_growth|float) }} %
+                </strong>
+
+                <span class="intel-card-description">
+                    Évolution du chiffre d'affaires
+                </span>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         ACTIVITÉ COMMERCIALE
+         ===================================================== -->
+
+    <section class="intel-section">
+
+        <div class="intel-section-title">
+            <h2>📈 Activité commerciale</h2>
+            <span>Ventes et clientèle</span>
+        </div>
+
+        <div class="intel-grid">
+
+            <div class="intel-card intel-card-neutral">
+                <span class="intel-card-label">
+                    Ventes
+                </span>
+
+                <strong class="intel-card-value">
+                    {{ analysis.sales_count }}
+                </strong>
+
+                <span class="intel-card-description">
+                    Transactions enregistrées
+                </span>
+            </div>
+
+            <div class="intel-card intel-card-neutral">
+                <span class="intel-card-label">
+                    Clients
+                </span>
+
+                <strong class="intel-card-value">
+                    {{ analysis.customers_count }}
+                </strong>
+
+                <span class="intel-card-description">
+                    Clients enregistrés
+                </span>
+            </div>
+
+            <div class="intel-card intel-card-positive">
+                <span class="intel-card-label">
+                    Panier moyen
+                </span>
+
+                <strong class="intel-card-value">
+                    {{ analysis.average_sale|money }} FCFA
+                </strong>
+
+                <span class="intel-card-description">
+                    Valeur moyenne d'une vente
+                </span>
+            </div>
+
+            <div class="intel-card intel-card-warning">
+                <span class="intel-card-label">
+                    Créances
+                </span>
+
+                <strong class="intel-card-value">
+                    {{ analysis.unpaid_amount|money }} FCFA
+                </strong>
+
+                <span class="intel-card-description">
+                    Factures restant à payer
+                </span>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         ACHATS
+         ===================================================== -->
+
+    <section class="intel-section">
+
+        <div class="intel-section-title">
+            <h2>🛒 Achats et dépenses</h2>
+            <span>Coûts de fonctionnement</span>
+        </div>
+
+        <div class="intel-grid">
+
+            <div class="intel-card intel-card-warning">
+                <span class="intel-card-label">
+                    Achats
+                </span>
+
+                <strong class="intel-card-value">
+                    {{ analysis.purchases|money }} FCFA
+                </strong>
+
+                <span class="intel-card-description">
+                    Montant total des achats
+                </span>
+            </div>
+
+            <div class="intel-card intel-card-negative">
+                <span class="intel-card-label">
+                    Dépenses
+                </span>
+
+                <strong class="intel-card-value">
+                    {{ analysis.expenses|money }} FCFA
+                </strong>
+
+                <span class="intel-card-description">
+                    Charges enregistrées
+                </span>
+            </div>
+
+            <div class="intel-card intel-card-neutral">
+                <span class="intel-card-label">
+                    Coût des marchandises
+                </span>
+
+                <strong class="intel-card-value">
+                    {{ analysis.cogs|money }} FCFA
+                </strong>
+
+                <span class="intel-card-description">
+                    Coût associé aux ventes
+                </span>
+            </div>
+
+            <div class="intel-card intel-card-positive">
+                <span class="intel-card-label">
+                    Marge brute
+                </span>
+
+                <strong class="intel-card-value">
+                    {{ analysis.gross_profit|money }} FCFA
+                </strong>
+
+                <span class="intel-card-description">
+                    CA moins coût des marchandises
+                </span>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         STOCK
+         ===================================================== -->
+
+    <section class="intel-section">
+
+        <div class="intel-section-title">
+            <h2>📦 Analyse du stock</h2>
+            <span>Inventaire et risques</span>
+        </div>
+
+        <div class="intel-grid">
+
+            <div class="intel-card intel-card-neutral">
+                <span class="intel-card-label">
+                    Quantité en stock
+                </span>
+
+                <strong class="intel-card-value">
+                    {{ analysis.stock_quantity }}
+                </strong>
+
+                <span class="intel-card-description">
+                    Unités actuellement disponibles
+                </span>
+            </div>
+
+            <div class="intel-card intel-card-warning">
+                <span class="intel-card-label">
+                    Valeur du stock
+                </span>
+
+                <strong class="intel-card-value">
+                    {{ analysis.stock_value|money }} FCFA
+                </strong>
+
+                <span class="intel-card-description">
+                    Valeur d'achat immobilisée
+                </span>
+            </div>
+
+            <div class="intel-card intel-card-positive">
+                <span class="intel-card-label">
+                    Valeur potentielle
+                </span>
+
+                <strong class="intel-card-value">
+                    {{ analysis.stock_selling_value|money }} FCFA
+                </strong>
+
+                <span class="intel-card-description">
+                    Valeur au prix de vente
+                </span>
+            </div>
+
+            <div class="intel-card {% if analysis.out_of_stock > 0 %}intel-card-negative{% else %}intel-card-positive{% endif %}">
+                <span class="intel-card-label">
+                    Ruptures
+                </span>
+
+                <strong class="intel-card-value">
+                    {{ analysis.out_of_stock }}
+                </strong>
+
+                <span class="intel-card-description">
+                    Produits sans stock
+                </span>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         FACTURES
+         ===================================================== -->
+
+    <section class="intel-section">
+
+        <div class="intel-section-title">
+            <h2>🧾 Facturation</h2>
+            <span>Suivi des factures</span>
+        </div>
+
+        <div class="intel-grid">
+
+            <div class="intel-card intel-card-neutral">
+                <span class="intel-card-label">
+                    Factures
+                </span>
+
+                <strong class="intel-card-value">
+                    {{ analysis.invoices_count }}
+                </strong>
+
+                <span class="intel-card-description">
+                    Factures enregistrées
+                </span>
+            </div>
+
+            <div class="intel-card intel-card-positive">
+                <span class="intel-card-label">
+                    Factures payées
+                </span>
+
+                <strong class="intel-card-value">
+                    {{ analysis.paid_invoices }}
+                </strong>
+
+                <span class="intel-card-description">
+                    Factures réglées
+                </span>
+            </div>
+
+            <div class="intel-card intel-card-warning">
+                <span class="intel-card-label">
+                    Factures impayées
+                </span>
+
+                <strong class="intel-card-value">
+                    {{ analysis.unpaid_invoices }}
+                </strong>
+
+                <span class="intel-card-description">
+                    Factures encore ouvertes
+                </span>
+            </div>
+
+            <div class="intel-card intel-card-negative">
+                <span class="intel-card-label">
+                    Montant impayé
+                </span>
+
+                <strong class="intel-card-value">
+                    {{ analysis.unpaid_amount|money }} FCFA
+                </strong>
+
+                <span class="intel-card-description">
+                    Créances à récupérer
+                </span>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         ALERTES
+         ===================================================== -->
+
+    <section class="intel-section">
+
+        <div class="intel-section-title">
+            <h2>🚨 Alertes intelligentes</h2>
+            <span>{{ alerts|length }} alerte(s)</span>
+        </div>
+
+        {% if alerts %}
+
+        <div class="intel-alerts">
+
+            {% for alert in alerts %}
+
+            <div class="intel-alert">
+
+                <div class="intel-alert-title">
+
+                    <strong>
+                        {{ alert.title }}
+                    </strong>
+
+                    <span class="intel-alert-type
+                        {% if alert.type in ['danger', 'critical', 'critique'] %}
+                            intel-alert-danger
+                        {% elif alert.type in ['warning', 'important'] %}
+                            intel-alert-warning
+                        {% elif alert.type in ['success', 'normal'] %}
+                            intel-alert-success
+                        {% else %}
+                            intel-alert-info
+                        {% endif %}
+                    ">
+                        {{ alert.type|default('INFO') }}
+                    </span>
+
+                </div>
+
+                <p class="intel-alert-message">
+                    {{ alert.message }}
+                </p>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+        {% else %}
+
+        <div class="intel-empty">
+            ✅ Aucune alerte importante détectée.
+        </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <!-- =====================================================
+         RECOMMANDATIONS
+         ===================================================== -->
+
+    <section class="intel-section">
+
+        <div class="intel-section-title">
+            <h2>💡 Recommandations</h2>
+            <span>Actions proposées par Nexus Intelligence</span>
+        </div>
+
+        {% if recommendations %}
+
+        <div class="intel-recommendations">
+
+            {% for recommendation in recommendations %}
+
+            <div class="intel-recommendation">
+
+                <div class="intel-recommendation-top">
+
+                    <h3>
+                        {{ recommendation.title }}
+                    </h3>
+
+                    {% if recommendation.priority %}
+                    <span class="intel-priority">
+                        {{ recommendation.priority }}
+                    </span>
+                    {% endif %}
+
+                </div>
+
+                {% if recommendation.message %}
+                <p>
+                    {{ recommendation.message }}
+                </p>
+                {% endif %}
+
+                {% if recommendation.action %}
+                <p>
+                    <strong>Action :</strong>
+                    {{ recommendation.action }}
+                </p>
+                {% endif %}
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+        {% else %}
+
+        <div class="intel-empty">
+            Aucune recommandation disponible pour le moment.
+        </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <!-- =====================================================
+         TOP PRODUITS
+         ===================================================== -->
+
+    <section class="intel-section">
+
+        <div class="intel-section-title">
+            <h2>🏆 Produits les plus performants</h2>
+            <span>Classement par chiffre d'affaires</span>
+        </div>
+
+        {% if top_products %}
+
+        <div class="intel-table-box">
+
+            <table class="intel-table">
+
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Produit</th>
+                        <th>Quantité vendue</th>
+                        <th>CA</th>
+                        <th>Bénéfice</th>
+                        <th>Marge</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                {% for product in top_products %}
+
+                    <tr>
+
+                        <td>
+                            <strong>{{ loop.index }}</strong>
+                        </td>
+
+                        <td class="intel-product-name">
+                            {{ product.name }}
+                        </td>
+
+                        <td class="num">
+                            {{ product.quantity_sold|default(0) }}
+                        </td>
+
+                        <td class="num">
+                            {{ product.revenue|default(0)|money }} FCFA
+                        </td>
+
+                        <td class="num">
+                            {{ product.total_profit|default(0)|money }} FCFA
+                        </td>
+
+                        <td class="num">
+                            {{ "%.1f"|format(product.margin_percent|default(0)|float) }} %
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+        <div class="intel-empty">
+            Aucun produit vendu pour le moment.
+        </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <!-- =====================================================
+         PRODUITS RENTABLES
+         ===================================================== -->
+
+    <section class="intel-section">
+
+        <div class="intel-section-title">
+            <h2>💎 Produits les plus rentables</h2>
+            <span>Classement par bénéfice</span>
+        </div>
+
+        {% if profitable_products %}
+
+        <div class="intel-table-box">
+
+            <table class="intel-table">
+
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Produit</th>
+                        <th>Bénéfice</th>
+                        <th>Marge</th>
+                        <th>Ventes</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                {% for product in profitable_products %}
+
+                    <tr>
+
+                        <td>
+                            <strong>{{ loop.index }}</strong>
+                        </td>
+
+                        <td class="intel-product-name">
+                            {{ product.name }}
+                        </td>
+
+                        <td class="num">
+                            {{ product.total_profit|default(0)|money }} FCFA
+                        </td>
+
+                        <td class="num">
+                            {{ "%.1f"|format(product.margin_percent|default(0)|float) }} %
+                        </td>
+
+                        <td class="num">
+                            {{ product.quantity_sold|default(0) }}
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+        <div class="intel-empty">
+            Pas encore suffisamment de données pour déterminer les produits rentables.
+        </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <!-- =====================================================
+         PRODUITS À FAIBLE ROTATION
+         ===================================================== -->
+
+    <section class="intel-section">
+
+        <div class="intel-section-title">
+            <h2>🐌 Produits à faible rotation</h2>
+            <span>Produits vendus en faible quantité</span>
+        </div>
+
+        {% if slow_products %}
+
+        <div class="intel-table-box">
+
+            <table class="intel-table">
+
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Produit</th>
+                        <th>Ventes</th>
+                        <th>Stock</th>
+                        <th>CA</th>
+                        <th>Statut</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                {% for product in slow_products %}
+
+                    <tr>
+
+                        <td>
+                            <strong>{{ loop.index }}</strong>
+                        </td>
+
+                        <td class="intel-product-name">
+                            {{ product.name }}
+                        </td>
+
+                        <td class="num">
+                            {{ product.quantity_sold|default(0) }}
+                        </td>
+
+                        <td class="num">
+                            {{ product.quantity|default(0) }}
+                        </td>
+
+                        <td class="num">
+                            {{ product.revenue|default(0)|money }} FCFA
+                        </td>
+
+                        <td>
+                            <span class="intel-status">
+                                {{ product.status|default('À surveiller') }}
+                            </span>
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+        <div class="intel-empty">
+            Aucun produit à faible rotation détecté.
+        </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <!-- =====================================================
+         PRÉVISIONS
+         ===================================================== -->
+
+    <section class="intel-section">
+
+        <div class="intel-section-title">
+            <h2>🔮 Prévisions</h2>
+            <span>Projection basée sur les données enregistrées</span>
+        </div>
+
+        <div class="intel-forecast">
+
+            <div class="intel-forecast-card">
+
+                <small>
+                    CA estimé — 7 jours
+                </small>
+
+                <strong>
+                    {{ forecast.next_7_days|default(0)|money }} FCFA
+                </strong>
+
+                <span>
+                    Projection à court terme
+                </span>
+
+            </div>
+
+            <div class="intel-forecast-card">
+
+                <small>
+                    CA estimé — 30 jours
+                </small>
+
+                <strong>
+                    {{ forecast.next_30_days|default(0)|money }} FCFA
+                </strong>
+
+                <span>
+                    Projection mensuelle
+                </span>
+
+            </div>
+
+            <div class="intel-forecast-card">
+
+                <small>
+                    Niveau de confiance
+                </small>
+
+                <strong>
+                    {{ "%.0f"|format(forecast.confidence_percent|default(0)|float) }} %
+                </strong>
+
+                <span>
+                    Fiabilité estimée de la projection
+                </span>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         RÉSUMÉ FINAL
+         ===================================================== -->
+
+    <section class="intel-diagnostic">
+
+        <div class="intel-diagnostic-head">
+
+            <h2>
+                🧠 Conclusion Nexus Intelligence
+            </h2>
+
+            <span class="intel-badge">
+                Données actualisées
+            </span>
+
+        </div>
+
+        <p class="intel-diagnostic-text">
+Nexus Intelligence analyse automatiquement les ventes, achats, dépenses, stocks, clients et factures afin d'identifier les performances, les risques et les opportunités de l'entreprise.
+
+Le score de santé actuel est de {{ score }}/100 — {{ health_status }}.
+
+Continuez à enregistrer régulièrement les opérations de l'entreprise afin d'améliorer progressivement la précision des analyses et des recommandations.
+        </p>
+
+    </section>
+
+</div>
+
+{% endblock %}
+

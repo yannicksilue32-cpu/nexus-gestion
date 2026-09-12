@@ -1,0 +1,501 @@
+
+{% extends "base.html" %}
+
+{% block title %}
+Ventes - Nexus Gestion
+{% endblock %}
+
+{% block content %}
+
+
+<section class="page-title">
+
+    <h2>🛒 Gestion des ventes</h2>
+
+    <p>
+        Enregistrez et consultez les ventes de votre entreprise.
+    </p>
+
+</section>
+
+
+<!-- =========================================
+     AJOUTER UNE VENTE
+========================================= -->
+
+<section class="section">
+
+    <div class="info-card">
+
+        <h2>➕ Enregistrer une vente</h2>
+
+
+        <form
+            action="/sales/add"
+            method="POST"
+            id="sale-form"
+        >
+
+
+            <div>
+
+                <label>
+                    Produit
+                </label>
+
+                <select
+                    name="product_id"
+                    id="product"
+                    required
+                >
+
+                    <option value="">
+                        -- Choisir un produit --
+                    </option>
+
+
+                    {% for product in products %}
+
+                    <option
+                        value="{{ product['id'] }}"
+                        data-price="{{ product['selling_price'] }}"
+                        data-stock="{{ product['quantity'] }}"
+                    >
+
+                        {{ product['name'] }}
+                        — Stock : {{ product['quantity'] }}
+
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <div>
+
+                <label>
+                    Quantité vendue
+                </label>
+
+                <input
+                    type="number"
+                    name="quantity"
+                    id="quantity"
+                    min="1"
+                    required
+                >
+
+            </div>
+
+
+            <div>
+
+                <label>
+                    Prix de vente unitaire
+                </label>
+
+                <input
+                    type="number"
+                    name="price"
+                    id="price"
+                    readonly
+                >
+
+            </div>
+
+
+            <div>
+
+                <label>
+                    Total de la vente
+                </label>
+
+                <input
+                    type="text"
+                    id="total"
+                    readonly
+                >
+
+            </div>
+
+
+            <button type="submit">
+
+                🛒 Enregistrer la vente
+
+            </button>
+
+
+        </form>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================
+     RECHERCHE
+========================================= -->
+
+<section class="section">
+
+    <h2>
+        📋 Historique des ventes
+    </h2>
+
+
+    <div class="search-box">
+
+        <input
+            type="text"
+            id="salesSearch"
+            placeholder="🔎 Rechercher une vente..."
+        >
+
+    </div>
+
+</section>
+
+
+<!-- =========================================
+     TOTAL AFFICHÉ
+========================================= -->
+
+<section class="section">
+
+    <div class="info-card">
+
+        <h3>
+            💰 Total affiché
+        </h3>
+
+        <strong id="displayedTotal">
+            0 FCFA
+        </strong>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================
+     TABLEAU DES VENTES
+========================================= -->
+
+<section class="section">
+
+    <div class="table-container">
+
+        <table id="salesTable">
+
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Produit
+                    </th>
+
+                    <th>
+                        Quantité
+                    </th>
+
+                    <th>
+                        Prix unitaire
+                    </th>
+
+                    <th>
+                        Total
+                    </th>
+
+                    <th>
+                        Date
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+
+                {% for sale in sales %}
+
+                <tr>
+
+
+                    <td>
+                        {{ sale["product_name"] }}
+                    </td>
+
+
+                    <td>
+                        {{ sale["quantity"] }}
+                    </td>
+
+
+                    <td>
+
+                        {{ "{:,.0f}".format(
+                            sale["price"]
+                        ).replace(",", " ") }}
+
+                        FCFA
+
+                    </td>
+
+
+                    <td class="sale-total">
+
+                        {{ "{:,.0f}".format(
+                            sale["quantity"] * sale["price"]
+                        ).replace(",", " ") }}
+
+                        FCFA
+
+                    </td>
+
+
+                    <td>
+                        {{ sale["date"] }}
+                    </td>
+
+
+                </tr>
+
+
+                {% else %}
+
+                <tr>
+
+                    <td colspan="5">
+
+                        Aucune vente enregistrée.
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+
+            </tbody>
+
+
+        </table>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================
+     JAVASCRIPT
+========================================= -->
+
+<script>
+
+/* ==========================================
+   CALCUL AUTOMATIQUE DE LA VENTE
+========================================== */
+
+const product =
+    document.getElementById("product");
+
+const quantity =
+    document.getElementById("quantity");
+
+const price =
+    document.getElementById("price");
+
+const total =
+    document.getElementById("total");
+
+
+function updateSale() {
+
+    const option =
+        product.options[product.selectedIndex];
+
+
+    if (!option.value) {
+
+        price.value = "";
+
+        total.value = "";
+
+        quantity.removeAttribute("max");
+
+        return;
+
+    }
+
+
+    const productPrice =
+        Number(option.dataset.price);
+
+
+    const productStock =
+        Number(option.dataset.stock);
+
+
+    price.value =
+        productPrice;
+
+
+    quantity.max =
+        productStock;
+
+
+    const quantityValue =
+        Number(quantity.value);
+
+
+    if (quantityValue > 0) {
+
+        total.value =
+            (
+                productPrice *
+                quantityValue
+            ).toLocaleString("fr-FR")
+            + " FCFA";
+
+    } else {
+
+        total.value = "";
+
+    }
+
+}
+
+
+product.addEventListener(
+    "change",
+    updateSale
+);
+
+
+quantity.addEventListener(
+    "input",
+    updateSale
+);
+
+
+/* ==========================================
+   RECHERCHE DES VENTES
+========================================== */
+
+const search =
+    document.getElementById("salesSearch");
+
+
+const rows =
+    document.querySelectorAll(
+        "#salesTable tbody tr"
+    );
+
+
+const displayedTotal =
+    document.getElementById(
+        "displayedTotal"
+    );
+
+
+function updateSalesSearch() {
+
+    const value =
+        search.value
+        .toLowerCase()
+        .trim();
+
+
+    let totalAmount = 0;
+
+
+    rows.forEach(function(row) {
+
+
+        const text =
+            row.textContent.toLowerCase();
+
+
+        if (
+            text.includes(value)
+            ||
+            value === ""
+        ) {
+
+
+            row.style.display = "";
+
+
+            const totalCell =
+                row.querySelector(
+                    ".sale-total"
+                );
+
+
+            if (totalCell) {
+
+
+                const number =
+                    totalCell.textContent
+                    .replace(/\s/g, "")
+                    .replace("FCFA", "")
+                    .replace(",", ".");
+
+
+                const amount =
+                    parseFloat(
+                        number.replace(
+                            /[^0-9.-]/g,
+                            ""
+                        )
+                    );
+
+
+                if (!isNaN(amount)) {
+
+                    totalAmount += amount;
+
+                }
+
+            }
+
+
+        } else {
+
+            row.style.display = "none";
+
+        }
+
+    });
+
+
+    displayedTotal.textContent =
+        totalAmount.toLocaleString(
+            "fr-FR"
+        )
+        + " FCFA";
+
+}
+
+
+search.addEventListener(
+    "input",
+    updateSalesSearch
+);
+
+
+updateSalesSearch();
+
+</script>
+
+
+{% endblock %}
+
