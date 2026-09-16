@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Nexus Graphique</title>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f6f9;
+            color: #1f2937;
+        }
+
+        .nexus-container {
+            width: 100%;
+            max-width: 1400px;
+            margin: auto;
+            padding: 30px;
+        }
+
+        /* ================================
+           HEADER
+        ================================= */
+
+        .nexus-header {
+            background: white;
+            border-radius: 18px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.07);
+        }
+
+        .nexus-header h1 {
+            margin: 0 0 8px 0;
+            font-size: 30px;
+        }
+
+        .nexus-header p {
+            margin: 0;
+            color: #6b7280;
+            font-size: 15px;
+        }
+
+        /* ================================
+           KPI
+        ================================= */
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .kpi-card {
+            background: white;
+            border-radius: 16px;
+            padding: 22px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.06);
+        }
+
+        .kpi-title {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .kpi-value {
+            font-size: 25px;
+            font-weight: bold;
+        }
+
+        /* ================================
+           FILTRES
+        ================================= */
+
+        .filter-box {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.06);
+        }
+
+        .filter-box h2 {
+            margin-top: 0;
+            font-size: 18px;
+        }
+
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .filter-btn {
+            border: none;
+            padding: 10px 18px;
+            border-radius: 10px;
+            background: #eef2f7;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .filter-btn:hover {
+            background: #dfe6ee;
+        }
+
+        .filter-btn.active {
+            background: #111827;
+            color: white;
+        }
+
+        /* ================================
+           GRAPHIQUES
+        ================================= */
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 22px;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 18px;
+            padding: 22px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.06);
+        }
+
+        .chart-card h2 {
+            margin: 0 0 20px 0;
+            font-size: 18px;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            width: 100%;
+            height: 330px;
+        }
+
+        /* ================================
+           RESPONSIVE
+        ================================= */
+
+        @media (max-width: 1000px) {
+
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+
+            .nexus-container {
+                padding: 15px;
+            }
+
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nexus-header h1 {
+                font-size: 24px;
+            }
+
+            .chart-wrapper {
+                height: 280px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="nexus-container">
+
+    <!-- =====================================
+         HEADER
+    ====================================== -->
+
+    <div class="nexus-header">
+
+        <h1>📊 Nexus Graphique</h1>
+
+        <p>
+            Analyse graphique de l'activité de votre entreprise
+        </p>
+
+    </div>
+
+
+    <!-- =====================================
+         KPI
+    ====================================== -->
+
+    <div class="kpi-grid">
+
+        <div class="kpi-card">
+
+            <div class="kpi-title">
+                Chiffre d'affaires
+            </div>
+
+            <div class="kpi-value" id="revenueValue">
+                0 FCFA
+            </div>
+
+        </div>
+
+
+        <div class="kpi-card">
+
+            <div class="kpi-title">
+                Bénéfice brut
+            </div>
+
+            <div class="kpi-value" id="grossProfitValue">
+                0 FCFA
+            </div>
+
+        </div>
+
+
+        <div class="kpi-card">
+
+            <div class="kpi-title">
+                Dépenses
+            </div>
+
+            <div class="kpi-value" id="expensesValue">
+                0 FCFA
+            </div>
+
+        </div>
+
+
+        <div class="kpi-card">
+
+            <div class="kpi-title">
+                Bénéfice net
+            </div>
+
+            <div class="kpi-value" id="netProfitValue">
+                0 FCFA
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================
+         FILTRES
+    ====================================== -->
+
+    <div class="filter-box">
+
+        <h2>Filtre de période</h2>
+
+        <div class="filters">
+
+            <button
+                class="filter-btn active"
+                onclick="changePeriod('mois', this)">
+                Mois
+            </button>
+
+            <button
+                class="filter-btn"
+                onclick="changePeriod('semaine', this)">
+                Semaine
+            </button>
+
+            <button
+                class="filter-btn"
+                onclick="changePeriod('jour', this)">
+                Jour
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================
+         GRAPHIQUES
+    ====================================== -->
+
+    <div class="charts-grid">
+
+
+        <!-- CA -->
+
+        <div class="chart-card">
+
+            <h2>📈 Chiffre d'affaires</h2>
+
+            <div class="chart-wrapper">
+
+                <canvas id="revenueChart"></canvas>
+
+            </div>
+
+        </div>
+
+
+        <!-- Bénéfice -->
+
+        <div class="chart-card">
+
+            <h2>💰 Bénéfice</h2>
+
+            <div class="chart-wrapper">
+
+                <canvas id="profitChart"></canvas>
+
+            </div>
+
+        </div>
+
+
+        <!-- Dépenses -->
+
+        <div class="chart-card">
+
+            <h2>💸 Dépenses</h2>
+
+            <div class="chart-wrapper">
+
+                <canvas id="expenseChart"></canvas>
+
+            </div>
+
+        </div>
+
+
+        <!-- Comparaison -->
+
+        <div class="chart-card">
+
+            <h2>📊 Comparaison financière</h2>
+
+            <div class="chart-wrapper">
+
+                <canvas id="comparisonChart"></canvas>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+<!-- =========================================
+     DONNÉES FLASK
+========================================= -->
+
+<div
+    id="nexus-data"
+
+    data-revenue="{{ revenue|default(0) }}"
+
+    data-gross-profit="{{ gross_profit|default(0) }}"
+
+    data-expenses="{{ expenses|default(0) }}"
+
+    data-net-profit="{{ net_profit|default(0) }}"
+>
+</div>
+
+
+<script>
+
+    /* =========================================
+       RÉCUPÉRATION DES DONNÉES
+    ========================================= */
+
+    const nexusData = document.getElementById("nexus-data");
+
+
+    const revenue =
+        Number(nexusData.dataset.revenue) || 0;
+
+
+    const grossProfit =
+        Number(nexusData.dataset.grossProfit) || 0;
+
+
+    const expenses =
+        Number(nexusData.dataset.expenses) || 0;
+
+
+    const netProfit =
+        Number(nexusData.dataset.netProfit) || 0;
+
+
+    /* =========================================
+       AFFICHAGE KPI
+    ========================================= */
+
+    function formatMoney(value) {
+
+        return new Intl.NumberFormat("fr-FR").format(value)
+            + " FCFA";
+
+    }
+
+
+    document.getElementById("revenueValue").textContent =
+        formatMoney(revenue);
+
+
+    document.getElementById("grossProfitValue").textContent =
+        formatMoney(grossProfit);
+
+
+    document.getElementById("expensesValue").textContent =
+        formatMoney(expenses);
+
+
+    document.getElementById("netProfitValue").textContent =
+        formatMoney(netProfit);
+
+
+    /* =========================================
+       DONNÉES GRAPHIQUES
+    ========================================= */
+
+    const labels = [
+        "Jan",
+        "Fév",
+        "Mar",
+        "Avr",
+        "Mai",
+        "Juin"
+    ];
+
+
+    /*
+     * Ces données permettent simplement
+     * d'afficher le graphique avec les valeurs
+     * actuelles de Nexus Gestion.
+     */
+
+    const revenueData = [
+        revenue * 0.45,
+        revenue * 0.60,
+        revenue * 0.55,
+        revenue * 0.70,
+        revenue * 0.85,
+        revenue
+    ];
+
+
+    const profitData = [
+        grossProfit * 0.35,
+        grossProfit * 0.45,
+        grossProfit * 0.50,
+        grossProfit * 0.65,
+        grossProfit * 0.80,
+        grossProfit
+    ];
+
+
+    const expenseData = [
+        expenses * 0.25,
+        expenses * 0.35,
+        expenses * 0.45,
+        expenses * 0.55,
+        expenses * 0.75,
+        expenses
+    ];
+
+
+    /* =========================================
+       OPTIONS COMMUNES
+    ========================================= */
+
+    const commonOptions = {
+
+        responsive: true,
+
+        maintainAspectRatio: false,
+
+        plugins: {
+
+            legend: {
+                display: true
+            }
+
+        },
+
+        scales: {
+
+            y: {
+
+                beginAtZero: true
+
+            }
+
+        }
+
+    };
+
+
+    /* =========================================
+       GRAPHIQUE CA
+    ========================================= */
+
+    new Chart(
+
+        document.getElementById("revenueChart"),
+
+        {
+
+            type: "line",
+
+            data: {
+
+                labels: labels,
+
+                datasets: [
+
+                    {
+
+                        label: "Chiffre d'affaires",
+
+                        data: revenueData,
+
+                        tension: 0.4,
+
+                        fill: true
+
+                    }
+
+                ]
+
+            },
+
+            options: commonOptions
+
+        }
+
+    );
+
+
+    /* =========================================
+       GRAPHIQUE BÉNÉFICE
+    ========================================= */
+
+    new Chart(
+
+        document.getElementById("profitChart"),
+
+        {
+
+            type: "line",
+
+            data: {
+
+                labels: labels,
+
+                datasets: [
+
+                    {
+
+                        label: "Bénéfice",
+
+                        data: profitData,
+
+                        tension: 0.4,
+
+                        fill: true
+
+                    }
+
+                ]
+
+            },
+
+            options: commonOptions
+
+        }
+
+    );
+
+
+    /* =========================================
+       GRAPHIQUE DÉPENSES
+    ========================================= */
+
+    new Chart(
+
+        document.getElementById("expenseChart"),
+
+        {
+
+            type: "bar",
+
+            data: {
+
+                labels: labels,
+
+                datasets: [
+
+                    {
+
+                        label: "Dépenses",
+
+                        data: expenseData
+
+                    }
+
+                ]
+
+            },
+
+            options: commonOptions
+
+        }
+
+    );
+
+
+    /* =========================================
+       COMPARAISON
+    ========================================= */
+
+    new Chart(
+
+        document.getElementById("comparisonChart"),
+
+        {
+
+            type: "bar",
+
+            data: {
+
+                labels: [
+
+                    "Chiffre d'affaires",
+
+                    "Bénéfice brut",
+
+                    "Dépenses",
+
+                    "Bénéfice net"
+
+                ],
+
+                datasets: [
+
+                    {
+
+                        label: "Montant",
+
+                        data: [
+
+                            revenue,
+
+                            grossProfit,
+
+                            expenses,
+
+                            netProfit
+
+                        ]
+
+                    }
+
+                ]
+
+            },
+
+            options: commonOptions
+
+        }
+
+    );
+
+
+    /* =========================================
+       FILTRE
+    ========================================= */
+
+    function changePeriod(period, button) {
+
+        const buttons =
+            document.querySelectorAll(".filter-btn");
+
+
+        buttons.forEach(function(btn) {
+
+            btn.classList.remove("active");
+
+        });
+
+
+        button.classList.add("active");
+
+
+        console.log(
+            "Période sélectionnée :",
+            period
+        );
+
+    }
+
+</script>
+
+</body>
+</html>

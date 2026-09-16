@@ -1,0 +1,674 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Nexus Notation - Nexus Gestion</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f7fb;
+            color: #1f2937;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 30px 20px 50px;
+        }
+
+        .header {
+            background: white;
+            border-radius: 18px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+        }
+
+        .header h1 {
+            font-size: 30px;
+            margin-bottom: 8px;
+            color: #111827;
+        }
+
+        .header p {
+            color: #6b7280;
+            font-size: 15px;
+        }
+
+        .flash-container {
+            margin-bottom: 20px;
+        }
+
+        .flash {
+            padding: 14px 18px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .flash.success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .flash.error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .flash.warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 18px;
+            padding: 30px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+        }
+
+        .card h2 {
+            font-size: 21px;
+            margin-bottom: 10px;
+            color: #111827;
+        }
+
+        .card-description {
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        .stars {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 25px 0;
+            direction: rtl;
+        }
+
+        .stars input {
+            display: none;
+        }
+
+        .stars label {
+            font-size: 48px;
+            color: #d1d5db;
+            cursor: pointer;
+            transition: transform 0.15s ease,
+                        color 0.15s ease;
+            line-height: 1;
+        }
+
+        .stars label:hover {
+            transform: scale(1.12);
+        }
+
+        .stars label:hover,
+        .stars label:hover ~ label,
+        .stars input:checked ~ label {
+            color: #f59e0b;
+        }
+
+        .rating-value {
+            text-align: center;
+            min-height: 24px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #374151;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 130px;
+            resize: vertical;
+            border: 1px solid #d1d5db;
+            border-radius: 12px;
+            padding: 14px;
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+        }
+
+        textarea:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+        }
+
+        .submit-btn {
+            width: 100%;
+            border: none;
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-top: 18px;
+            background: #2563eb;
+            color: white;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s ease,
+                        transform 0.15s ease;
+        }
+
+        .submit-btn:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+
+        .delete-form {
+            margin-top: 10px;
+        }
+
+        .delete-btn {
+            width: 100%;
+            border: 1px solid #ef4444;
+            border-radius: 12px;
+            padding: 12px 20px;
+            background: white;
+            color: #dc2626;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .delete-btn:hover {
+            background: #fef2f2;
+        }
+
+        .statistics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat {
+            background: #f8fafc;
+            border-radius: 14px;
+            padding: 18px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: bold;
+            color: #111827;
+        }
+
+        .stat-label {
+            margin-top: 5px;
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .average {
+            text-align: center;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 14px;
+            margin-bottom: 20px;
+        }
+
+        .average-number {
+            font-size: 42px;
+            font-weight: bold;
+            color: #111827;
+        }
+
+        .average-stars {
+            color: #f59e0b;
+            font-size: 27px;
+            letter-spacing: 2px;
+            margin: 5px 0;
+        }
+
+        .reviews {
+            margin-top: 25px;
+        }
+
+        .review {
+            border-top: 1px solid #e5e7eb;
+            padding: 18px 0;
+        }
+
+        .review:first-child {
+            border-top: none;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .review-user {
+            font-weight: bold;
+            color: #111827;
+        }
+
+        .review-stars {
+            color: #f59e0b;
+            font-size: 17px;
+            white-space: nowrap;
+        }
+
+        .review-comment {
+            color: #4b5563;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .review-date {
+            color: #9ca3af;
+            font-size: 12px;
+            margin-top: 7px;
+        }
+
+        .empty {
+            color: #6b7280;
+            text-align: center;
+            padding: 25px 10px;
+            font-size: 14px;
+        }
+
+        .current-rating {
+            background: #eff6ff;
+            color: #1d4ed8;
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        @media (max-width: 800px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 25px;
+            }
+
+            .stars label {
+                font-size: 40px;
+            }
+        }
+
+        @media (max-width: 450px) {
+            .container {
+                padding: 15px 12px 35px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .stars {
+                gap: 3px;
+            }
+
+            .stars label {
+                font-size: 35px;
+            }
+
+            .review-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <h1>⭐ Nexus Notation</h1>
+        <p>
+            Évaluez votre expérience avec Nexus Gestion.
+            Votre avis nous aide à améliorer l'application.
+        </p>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-container">
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <div class="main-grid">
+
+        <!-- FORMULAIRE DE NOTATION -->
+        <div class="card">
+
+            <h2>
+                {% if rating %}
+                    Modifier mon évaluation
+                {% else %}
+                    Évaluer Nexus Gestion
+                {% endif %}
+            </h2>
+
+            <p class="card-description">
+                Donnez une note de 1 à 5 étoiles.
+                Vous pouvez également laisser un commentaire
+                pour nous expliquer votre expérience.
+            </p>
+
+            {% if rating %}
+                <div class="current-rating">
+                    Votre note actuelle :
+                    <strong>{{ rating["rating"] }}/5</strong>
+                </div>
+            {% endif %}
+
+            <form method="POST"
+                  action="{{ url_for('notation') }}"
+                  id="ratingForm">
+
+                <div class="stars">
+
+                    <input
+                        type="radio"
+                        id="star5"
+                        name="rating"
+                        value="5"
+                        {% if rating and rating["rating"] == 5 %}checked{% endif %}
+                        required
+                    >
+                    <label for="star5" title="5 étoiles">★</label>
+
+                    <input
+                        type="radio"
+                        id="star4"
+                        name="rating"
+                        value="4"
+                        {% if rating and rating["rating"] == 4 %}checked{% endif %}
+                    >
+                    <label for="star4" title="4 étoiles">★</label>
+
+                    <input
+                        type="radio"
+                        id="star3"
+                        name="rating"
+                        value="3"
+                        {% if rating and rating["rating"] == 3 %}checked{% endif %}
+                    >
+                    <label for="star3" title="3 étoiles">★</label>
+
+                    <input
+                        type="radio"
+                        id="star2"
+                        name="rating"
+                        value="2"
+                        {% if rating and rating["rating"] == 2 %}checked{% endif %}
+                    >
+                    <label for="star2" title="2 étoiles">★</label>
+
+                    <input
+                        type="radio"
+                        id="star1"
+                        name="rating"
+                        value="1"
+                        {% if rating and rating["rating"] == 1 %}checked{% endif %}
+                    >
+                    <label for="star1" title="1 étoile">★</label>
+
+                </div>
+
+                <div class="rating-value" id="ratingValue">
+                    {% if rating %}
+                        {{ rating["rating"] }}/5 étoiles
+                    {% else %}
+                        Sélectionnez une note
+                    {% endif %}
+                </div>
+
+                <textarea
+                    name="comment"
+                    maxlength="1000"
+                    placeholder="Votre commentaire (facultatif)..."
+                >{% if rating %}{{ rating["comment"] }}{% endif %}</textarea>
+
+                <button type="submit" class="submit-btn">
+                    {% if rating %}
+                        Mettre à jour mon évaluation
+                    {% else %}
+                        Envoyer mon évaluation
+                    {% endif %}
+                </button>
+
+            </form>
+
+            {% if rating %}
+                <form
+                    method="POST"
+                    action="{{ url_for('delete_my_rating') }}"
+                    class="delete-form"
+                    onsubmit="return confirm('Voulez-vous vraiment supprimer votre évaluation ?');"
+                >
+                    <button type="submit" class="delete-btn">
+                        Supprimer mon évaluation
+                    </button>
+                </form>
+            {% endif %}
+
+        </div>
+
+
+        <!-- STATISTIQUES -->
+        <div class="card">
+
+            <h2>📊 Avis des utilisateurs</h2>
+
+            <p class="card-description">
+                Découvrez la note moyenne donnée à Nexus Gestion
+                par les utilisateurs.
+            </p>
+
+            <div class="average">
+
+                <div class="average-number">
+                    {{ statistics.average }}/5
+                </div>
+
+                <div class="average-stars">
+                    {% set avg = statistics.average|round(0, 'common')|int %}
+
+                    {% for i in range(1, 6) %}
+                        {% if i <= avg %}
+                            ★
+                        {% else %}
+                            ☆
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                <div class="stat-label">
+                    {{ statistics.total }} évaluation(s)
+                </div>
+
+            </div>
+
+            <div class="statistics">
+
+                <div class="stat">
+                    <div class="stat-number">
+                        {{ statistics.rating_5 }}
+                    </div>
+                    <div class="stat-label">
+                        ⭐⭐⭐⭐⭐
+                    </div>
+                </div>
+
+                <div class="stat">
+                    <div class="stat-number">
+                        {{ statistics.rating_4 }}
+                    </div>
+                    <div class="stat-label">
+                        ⭐⭐⭐⭐
+                    </div>
+                </div>
+
+                <div class="stat">
+                    <div class="stat-number">
+                        {{ statistics.rating_3 }}
+                    </div>
+                    <div class="stat-label">
+                        ⭐⭐⭐
+                    </div>
+                </div>
+
+                <div class="stat">
+                    <div class="stat-number">
+                        {{ statistics.rating_2 }}
+                    </div>
+                    <div class="stat-label">
+                        ⭐⭐
+                    </div>
+                </div>
+
+                <div class="stat">
+                    <div class="stat-number">
+                        {{ statistics.rating_1 }}
+                    </div>
+                    <div class="stat-label">
+                        ⭐
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- AVIS -->
+    <div class="card reviews">
+
+        <h2>💬 Commentaires des utilisateurs</h2>
+
+        <p class="card-description">
+            Les derniers commentaires laissés par les utilisateurs
+            de Nexus Gestion.
+        </p>
+
+        {% if recent_reviews %}
+
+            {% for review in recent_reviews %}
+
+                <div class="review">
+
+                    <div class="review-header">
+
+                        <div class="review-user">
+                            {{ review["full_name"] or "Utilisateur" }}
+                        </div>
+
+                        <div class="review-stars">
+                            {% for i in range(1, 6) %}
+                                {% if i <= review["rating"] %}
+                                    ★
+                                {% else %}
+                                    ☆
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+
+                    </div>
+
+                    <div class="review-comment">
+                        {{ review["comment"] }}
+                    </div>
+
+                    <div class="review-date">
+                        {{ review["created_at"] }}
+                    </div>
+
+                </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="empty">
+                Aucun commentaire pour le moment.
+                Soyez le premier à donner votre avis !
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+
+<script>
+    const ratingInputs = document.querySelectorAll(
+        'input[name="rating"]'
+    );
+
+    const ratingValue = document.getElementById(
+        'ratingValue'
+    );
+
+    const ratingLabels = {
+        1: "1/5 — Très insatisfait",
+        2: "2/5 — Insatisfait",
+        3: "3/5 — Moyen",
+        4: "4/5 — Satisfait",
+        5: "5/5 — Excellent"
+    };
+
+    ratingInputs.forEach(function(input) {
+
+        input.addEventListener("change", function() {
+
+            const value = parseInt(
+                this.value,
+                10
+            );
+
+            ratingValue.textContent =
+                ratingLabels[value] ||
+                value + "/5 étoiles";
+
+        });
+
+    });
+</script>
+
+</body>
+</html>
+

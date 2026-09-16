@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -7,7 +8,8 @@
     <title>{% block title %}Nexus Gestion{% endblock %}</title>
 
     <meta name="theme-color" content="#111827">
-    <meta name="description" content="Nexus Gestion - Gestion intelligente de votre entreprise">
+    <meta name="description"
+          content="Nexus Gestion - Gestion intelligente de votre entreprise">
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='style.css') }}">
@@ -32,55 +34,40 @@
 
         * {
             box-sizing: border-box;
-        }
-
-        html {
-            scroll-behavior: smooth;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            margin: 0;
-            background: var(--nexus-bg);
-            color: var(--nexus-text);
-
             font-family:
                 Inter,
                 -apple-system,
                 BlinkMacSystemFont,
                 "Segoe UI",
-                Roboto,
-                Arial,
                 sans-serif;
+
+            background: var(--nexus-bg);
+            color: var(--nexus-text);
+            min-height: 100vh;
         }
 
         a {
             text-decoration: none;
+            color: inherit;
         }
 
-        button,
-        input,
-        select,
-        textarea {
+        button {
             font-family: inherit;
         }
 
-        /* =========================================================
-           APPLICATION
-        ========================================================= */
-
-        .nexus-app {
-            min-height: 100vh;
-        }
-
-        /* =========================================================
+        /* =====================================================
            SIDEBAR
-        ========================================================= */
+        ===================================================== */
 
         .nexus-sidebar {
             position: fixed;
-
-            top: 0;
             left: 0;
+            top: 0;
 
             width: var(--nexus-sidebar);
             height: 100vh;
@@ -88,22 +75,11 @@
             background: var(--nexus-sidebar-bg);
             color: white;
 
-            display: flex;
-            flex-direction: column;
-
+            overflow-y: auto;
             z-index: 1000;
 
-            box-shadow:
-                8px 0 30px rgba(0, 0, 0, 0.08);
-
-            transition:
-                transform 0.25s ease,
-                width 0.25s ease;
+            border-right: 1px solid rgba(255,255,255,0.06);
         }
-
-        /* =========================================================
-           BRAND
-        ========================================================= */
 
         .nexus-brand {
             height: var(--nexus-header);
@@ -111,92 +87,68 @@
             display: flex;
             align-items: center;
 
-            gap: 12px;
-
             padding: 0 20px;
 
-            border-bottom:
-                1px solid rgba(255,255,255,0.08);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
         }
 
         .nexus-logo {
-            width: 40px;
-            height: 40px;
-
-            flex-shrink: 0;
-
-            border-radius: 12px;
+            width: 38px;
+            height: 38px;
 
             display: flex;
             align-items: center;
             justify-content: center;
 
-            background:
-                linear-gradient(
-                    135deg,
-                    #2563eb,
-                    #4f46e5
-                );
+            border-radius: 10px;
+
+            background: linear-gradient(
+                135deg,
+                #2563eb,
+                #1d4ed8
+            );
 
             font-size: 20px;
             font-weight: 800;
 
-            box-shadow:
-                0 6px 18px rgba(37, 99, 235, 0.35);
+            margin-right: 11px;
         }
 
         .nexus-brand-text {
             display: flex;
             flex-direction: column;
-
-            line-height: 1.1;
         }
 
-        .nexus-brand-name {
-            font-size: 17px;
+        .nexus-brand-title {
+            font-size: 16px;
             font-weight: 800;
-
-            letter-spacing: 0.2px;
         }
 
         .nexus-brand-subtitle {
-            margin-top: 4px;
-
+            font-size: 11px;
             color: #9ca3af;
-
-            font-size: 10px;
-            font-weight: 600;
-
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            margin-top: 2px;
         }
 
-        /* =========================================================
-           NAVIGATION
-        ========================================================= */
-
         .nexus-nav {
-            flex: 1;
-
-            overflow-y: auto;
-
-            padding: 18px 12px;
+            padding: 15px 12px 20px;
         }
 
         .nexus-nav-section {
-            margin-bottom: 22px;
+            margin-bottom: 20px;
         }
 
         .nexus-nav-title {
-            padding: 0 12px 8px;
-
             color: #6b7280;
 
             font-size: 10px;
-            font-weight: 700;
+            font-weight: 800;
 
             text-transform: uppercase;
-            letter-spacing: 1.2px;
+            letter-spacing: 1px;
+
+            padding: 0 12px;
+            margin-bottom: 7px;
         }
 
         .nexus-nav-link {
@@ -208,187 +160,147 @@
             min-height: 44px;
 
             padding: 10px 12px;
-
             margin: 3px 0;
 
-            border-radius: 10px;
+            border-radius: 9px;
 
-            color: #cbd5e1;
-
-            font-size: 14px;
-            font-weight: 500;
+            color: #d1d5db;
 
             transition:
-                background 0.18s ease,
-                color 0.18s ease,
-                transform 0.18s ease;
+                background 0.2s ease,
+                color 0.2s ease,
+                transform 0.2s ease;
         }
 
         .nexus-nav-link:hover {
+            background: rgba(255,255,255,0.07);
             color: white;
-
-            background:
-                rgba(255,255,255,0.07);
-
-            transform:
-                translateX(2px);
+            transform: translateX(2px);
         }
 
         .nexus-nav-link.active {
+            background: rgba(37,99,235,0.22);
             color: white;
-
-            background:
-                linear-gradient(
-                    90deg,
-                    rgba(37,99,235,0.95),
-                    rgba(37,99,235,0.72)
-                );
-
-            box-shadow:
-                0 6px 18px rgba(37,99,235,0.22);
-        }
-
-        .nexus-nav-link.active::before {
-            content: "";
-
-            position: absolute;
-
-            left: -12px;
-            top: 8px;
-
-            width: 3px;
-            height: 28px;
-
-            border-radius:
-                0 4px 4px 0;
-
-            background: #60a5fa;
         }
 
         .nexus-nav-icon {
             width: 28px;
-            min-width: 28px;
 
-            display: flex;
-            justify-content: center;
+            display: inline-flex;
             align-items: center;
+            justify-content: center;
+
+            font-size: 18px;
 
             margin-right: 7px;
-
-            font-size: 17px;
         }
 
         .nexus-nav-label {
-            flex: 1;
+            font-size: 13px;
+            font-weight: 600;
         }
 
-        /* =========================================================
-           NEXUS PRIX
-        ========================================================= */
+        /* =====================================================
+           SPECIAL LINKS
+        ===================================================== */
 
         .nexus-price-link {
-            margin-top: 6px;
-
             background:
                 linear-gradient(
                     90deg,
-                    rgba(245,158,11,0.16),
-                    rgba(245,158,11,0.06)
-                );
-
-            border:
-                1px solid rgba(245,158,11,0.18);
-        }
-
-        .nexus-price-link:hover {
-            background:
-                linear-gradient(
-                    90deg,
-                    rgba(245,158,11,0.28),
-                    rgba(245,158,11,0.12)
+                    rgba(34,197,94,0.13),
+                    rgba(34,197,94,0.04)
                 );
         }
 
         .nexus-simulator-link {
-            margin-top: 3px;
-
             background:
                 linear-gradient(
                     90deg,
-                    rgba(16,185,129,0.13),
-                    rgba(16,185,129,0.05)
-                );
-
-            border:
-                1px solid rgba(16,185,129,0.16);
-        }
-
-        .nexus-simulator-link:hover {
-            background:
-                linear-gradient(
-                    90deg,
-                    rgba(16,185,129,0.24),
-                    rgba(16,185,129,0.10)
+                    rgba(168,85,247,0.13),
+                    rgba(168,85,247,0.04)
                 );
         }
-
-        /* =========================================================
-           NEXUS INTELLIGENCE
-        ========================================================= */
 
         .nexus-intelligence-link {
-            margin-top: 8px;
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(14,165,233,0.13),
+                    rgba(14,165,233,0.04)
+                );
+        }
+
+        .nexus-notation-link {
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(234,179,8,0.14),
+                    rgba(234,179,8,0.04)
+                );
+        }
+
+        /* =====================================================
+           NEXUS GRAPHIQUE
+        ===================================================== */
+
+        .nexus-graphique-link {
+            margin-top: 5px;
 
             background:
                 linear-gradient(
                     90deg,
-                    rgba(124,58,237,0.20),
-                    rgba(79,70,229,0.10)
+                    rgba(37,99,235,0.20),
+                    rgba(59,130,246,0.06)
                 );
 
-            border:
-                1px solid rgba(139,92,246,0.18);
+            border: 1px solid rgba(59,130,246,0.20);
         }
 
-        .nexus-intelligence-link:hover {
+        .nexus-graphique-link:hover {
             background:
                 linear-gradient(
                     90deg,
-                    rgba(124,58,237,0.30),
-                    rgba(79,70,229,0.20)
+                    rgba(37,99,235,0.32),
+                    rgba(59,130,246,0.12)
                 );
         }
 
-        /* =========================================================
+        .nexus-graphique-link.active {
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(37,99,235,0.42),
+                    rgba(59,130,246,0.18)
+                );
+
+            border-color: rgba(96,165,250,0.45);
+        }
+
+        /* =====================================================
            SIDEBAR FOOTER
-        ========================================================= */
+        ===================================================== */
 
         .nexus-sidebar-footer {
-            padding: 12px;
+            padding: 14px 12px 18px;
 
-            border-top:
-                1px solid rgba(255,255,255,0.08);
+            border-top: 1px solid rgba(255,255,255,0.08);
         }
 
-        .nexus-user {
+        .nexus-user-box {
             display: flex;
             align-items: center;
 
-            gap: 10px;
+            padding: 9px;
 
-            padding: 10px;
+            border-radius: 9px;
 
-            border-radius: 10px;
-
-            background:
-                rgba(255,255,255,0.05);
+            background: rgba(255,255,255,0.04);
         }
 
-        .nexus-avatar {
-            width: 36px;
-            height: 36px;
-
-            flex-shrink: 0;
+        .nexus-user-avatar {
+            width: 34px;
+            height: 34px;
 
             display: flex;
             align-items: center;
@@ -399,477 +311,254 @@
             background: #2563eb;
 
             font-size: 14px;
-            font-weight: 800;
+            font-weight: 700;
+
+            margin-right: 9px;
         }
 
         .nexus-user-info {
             min-width: 0;
-
             flex: 1;
         }
 
         .nexus-user-name {
-            overflow: hidden;
-
-            color: white;
-
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 700;
 
             white-space: nowrap;
+            overflow: hidden;
             text-overflow: ellipsis;
         }
 
         .nexus-user-role {
-            margin-top: 2px;
-
+            font-size: 10px;
             color: #9ca3af;
 
-            font-size: 10px;
+            margin-top: 2px;
         }
 
         .nexus-logout {
-            width: 32px;
-            height: 32px;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            border-radius: 8px;
-
-            color: #9ca3af;
-
-            transition:
-                0.18s ease;
-        }
-
-        .nexus-logout:hover {
             color: #fca5a5;
-
-            background:
-                rgba(239,68,68,0.12);
+            font-size: 16px;
         }
 
-        /* =========================================================
+        /* =====================================================
            MAIN
-        ========================================================= */
+        ===================================================== */
 
         .nexus-main {
+            margin-left: var(--nexus-sidebar);
             min-height: 100vh;
-
-            margin-left:
-                var(--nexus-sidebar);
         }
 
-        /* =========================================================
+        /* =====================================================
            TOPBAR
-        ========================================================= */
+        ===================================================== */
 
         .nexus-topbar {
             position: sticky;
-
             top: 0;
+            z-index: 900;
 
-            height:
-                var(--nexus-header);
+            height: var(--nexus-header);
 
             display: flex;
             align-items: center;
+            justify-content: space-between;
 
             padding: 0 28px;
 
-            background:
-                rgba(255,255,255,0.94);
+            background: rgba(255,255,255,0.94);
 
-            backdrop-filter:
-                blur(12px);
+            border-bottom: 1px solid var(--nexus-border);
 
-            border-bottom:
-                1px solid var(--nexus-border);
-
-            z-index: 900;
+            backdrop-filter: blur(10px);
         }
 
-        .nexus-mobile-menu {
+        .nexus-topbar-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .nexus-page-heading h1 {
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .nexus-page-heading p {
+            color: var(--nexus-muted);
+            font-size: 12px;
+            margin-top: 3px;
+        }
+
+        .nexus-menu-button {
             display: none;
 
-            width: 42px;
-            height: 42px;
-
-            margin-right: 12px;
-
             border: 0;
+            background: transparent;
 
-            border-radius: 10px;
-
-            background: #f3f4f6;
-
-            font-size: 20px;
+            font-size: 24px;
 
             cursor: pointer;
+
+            margin-right: 12px;
         }
 
-        .nexus-page-heading {
-            flex: 1;
-        }
-
-        .nexus-page-title {
-            margin: 0;
-
-            font-size: 19px;
-            font-weight: 750;
-        }
-
-        .nexus-page-subtitle {
-            margin-top: 2px;
-
-            color:
-                var(--nexus-muted);
-
-            font-size: 12px;
-        }
-
-        .nexus-top-actions {
-            display: flex;
-            align-items: center;
-
-            gap: 8px;
-        }
-
-        .nexus-top-action {
-            width: 40px;
-            height: 40px;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            border-radius: 10px;
-
-            color: #4b5563;
-
-            background:
-                #f3f4f6;
-
-            font-size: 17px;
-
-            transition:
-                0.18s ease;
-        }
-
-        .nexus-top-action:hover {
-            color:
-                var(--nexus-primary);
-
-            background:
-                #eff6ff;
-        }
-
-        /* =========================================================
+        /* =====================================================
            CONTENT
-        ========================================================= */
+        ===================================================== */
 
         .nexus-content {
-            max-width: 1800px;
-
-            margin: 0 auto;
-
             padding: 28px;
         }
 
-        /* =========================================================
+        /* =====================================================
            QUICK ACTIONS
-        ========================================================= */
+        ===================================================== */
 
         .nexus-quick-actions {
             display: flex;
             flex-wrap: wrap;
-
             gap: 8px;
 
-            margin-bottom: 20px;
+            margin-bottom: 22px;
         }
 
         .nexus-quick-action {
             display: inline-flex;
             align-items: center;
+            gap: 6px;
 
-            gap: 7px;
+            padding: 8px 11px;
 
-            padding: 8px 13px;
+            background: white;
 
-            border:
-                1px solid var(--nexus-border);
+            border: 1px solid var(--nexus-border);
 
-            border-radius: 9px;
+            border-radius: 8px;
 
-            background:
-                white;
-
-            color:
-                #374151;
-
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
 
-            transition:
-                0.18s ease;
+            color: #374151;
+
+            transition: 0.2s ease;
         }
 
         .nexus-quick-action:hover {
-            color:
-                var(--nexus-primary);
+            border-color: #93c5fd;
+            color: var(--nexus-primary);
 
-            border-color:
-                #bfdbfe;
-
-            background:
-                #eff6ff;
+            transform: translateY(-1px);
         }
 
-        .nexus-quick-primary {
-            color: white;
-
-            background:
-                var(--nexus-primary);
-
-            border-color:
-                var(--nexus-primary);
-        }
-
-        .nexus-quick-primary:hover {
-            color: white;
-
-            background:
-                var(--nexus-primary-dark);
-
-            border-color:
-                var(--nexus-primary-dark);
-        }
-
-        .nexus-quick-price {
-            background:
-                #fffbeb;
-
-            border-color:
-                #fde68a;
-        }
-
-        .nexus-quick-price:hover {
-            color: #92400e;
-
-            background:
-                #fef3c7;
-
-            border-color:
-                #fcd34d;
-        }
-
-        .nexus-quick-simulator {
-            background:
-                #ecfdf5;
-
-            border-color:
-                #a7f3d0;
-        }
-
-        .nexus-quick-simulator:hover {
-            color: #047857;
-
-            background:
-                #d1fae5;
-
-            border-color:
-                #6ee7b7;
-        }
-
-        /* =========================================================
-           FLASH
-        ========================================================= */
+        /* =====================================================
+           FLASH MESSAGES
+        ===================================================== */
 
         .nexus-flashes {
-            margin-bottom: 18px;
+            margin-bottom: 20px;
         }
 
         .nexus-flash {
-            display: flex;
-            align-items: center;
-
-            gap: 10px;
-
             padding: 12px 15px;
+
+            border-radius: 8px;
 
             margin-bottom: 8px;
 
-            border-radius: 10px;
-
             font-size: 13px;
-            font-weight: 500;
-
-            border:
-                1px solid transparent;
+            font-weight: 600;
         }
 
         .nexus-flash.success {
+            background: #dcfce7;
             color: #166534;
-
-            background:
-                #f0fdf4;
-
-            border-color:
-                #bbf7d0;
+            border: 1px solid #bbf7d0;
         }
 
         .nexus-flash.error,
         .nexus-flash.danger {
+            background: #fee2e2;
             color: #991b1b;
-
-            background:
-                #fef2f2;
-
-            border-color:
-                #fecaca;
+            border: 1px solid #fecaca;
         }
 
         .nexus-flash.warning {
+            background: #fef3c7;
             color: #92400e;
-
-            background:
-                #fffbeb;
-
-            border-color:
-                #fde68a;
+            border: 1px solid #fde68a;
         }
 
         .nexus-flash.info {
+            background: #dbeafe;
             color: #1e40af;
-
-            background:
-                #eff6ff;
-
-            border-color:
-                #bfdbfe;
+            border: 1px solid #bfdbfe;
         }
 
-        /* =========================================================
-           SCROLLBAR
-        ========================================================= */
-
-        .nexus-nav::-webkit-scrollbar {
-            width: 5px;
-        }
-
-        .nexus-nav::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .nexus-nav::-webkit-scrollbar-thumb {
-            background:
-                rgba(255,255,255,0.15);
-
-            border-radius:
-                10px;
-        }
-
-        /* =========================================================
-           MOBILE
-        ========================================================= */
+        /* =====================================================
+           OVERLAY MOBILE
+        ===================================================== */
 
         .nexus-overlay {
             display: none;
 
             position: fixed;
-
             inset: 0;
 
-            background:
-                rgba(0,0,0,0.45);
+            background: rgba(0,0,0,0.45);
 
             z-index: 999;
         }
 
-        @media (max-width: 1100px) {
+        /* =====================================================
+           RESPONSIVE
+        ===================================================== */
 
-            :root {
-                --nexus-sidebar: 230px;
-            }
-
-            .nexus-content {
-                padding: 22px;
-            }
-
-            .nexus-topbar {
-                padding:
-                    0 22px;
-            }
-        }
-
-        @media (max-width: 800px) {
+        @media (max-width: 900px) {
 
             .nexus-sidebar {
-                transform:
-                    translateX(-100%);
+                transform: translateX(-100%);
+                transition: transform 0.25s ease;
             }
 
             .nexus-sidebar.open {
-                transform:
-                    translateX(0);
+                transform: translateX(0);
             }
 
             .nexus-main {
                 margin-left: 0;
             }
 
-            .nexus-mobile-menu {
-                display: flex;
-
-                align-items: center;
-                justify-content: center;
+            .nexus-menu-button {
+                display: block;
             }
 
-            .nexus-overlay.active {
+            .nexus-overlay.open {
                 display: block;
             }
 
             .nexus-topbar {
-                height: 64px;
-
-                padding:
-                    0 15px;
+                padding: 0 18px;
             }
 
             .nexus-content {
-                padding:
-                    18px 15px;
-            }
-
-            .nexus-page-title {
-                font-size: 17px;
-            }
-
-            .nexus-page-subtitle {
-                display: none;
-            }
-
-            .nexus-top-action.hide-mobile {
-                display: none;
+                padding: 20px;
             }
         }
 
-        @media (max-width: 480px) {
+        @media (max-width: 600px) {
 
-            .nexus-page-title {
-                font-size: 15px;
+            .nexus-content {
+                padding: 15px;
             }
 
-            .nexus-top-actions {
-                gap: 4px;
+            .nexus-page-heading h1 {
+                font-size: 17px;
             }
 
-            .nexus-top-action {
-                width: 36px;
-                height: 36px;
+            .nexus-page-heading p {
+                display: none;
             }
 
             .nexus-quick-actions {
@@ -877,10 +566,8 @@
             }
 
             .nexus-quick-action {
-                padding:
-                    7px 10px;
-
-                font-size: 11px;
+                font-size: 10px;
+                padding: 7px 9px;
             }
         }
     </style>
@@ -890,459 +577,317 @@
 
 <body>
 
-<div class="nexus-app">
+<!-- =========================================================
+     MOBILE OVERLAY
+========================================================= -->
 
-    <!-- =========================================================
-         SIDEBAR
-    ========================================================= -->
+<div
+    id="nexusOverlay"
+    class="nexus-overlay"
+    onclick="closeNexusSidebar()">
+</div>
 
-    <aside
-        class="nexus-sidebar"
-        id="nexusSidebar"
-    >
 
-        <!-- BRAND -->
+<!-- =========================================================
+     SIDEBAR
+========================================================= -->
 
-        <div class="nexus-brand">
+<aside id="nexusSidebar" class="nexus-sidebar">
 
-            <div class="nexus-logo">
-                N
+    <div class="nexus-brand">
+
+        <div class="nexus-logo">
+            N
+        </div>
+
+        <div class="nexus-brand-text">
+            <div class="nexus-brand-title">
+                Nexus Gestion
             </div>
 
-            <div class="nexus-brand-text">
-
-                <div class="nexus-brand-name">
-                    Nexus Gestion
-                </div>
-
-                <div class="nexus-brand-subtitle">
-                    Business Intelligence
-                </div>
-
+            <div class="nexus-brand-subtitle">
+                Gestion intelligente
             </div>
+        </div>
+
+    </div>
+
+
+    <nav class="nexus-nav">
+
+        <!-- =================================================
+             PRINCIPAL
+        ================================================== -->
+
+        <div class="nexus-nav-section">
+
+            <div class="nexus-nav-title">
+                Principal
+            </div>
+
+            <a
+                href="{{ url_for('dashboard') }}"
+                class="nexus-nav-link
+                {% if request.endpoint == 'dashboard' %}active{% endif %}"
+            >
+                <span class="nexus-nav-icon">⌂</span>
+                <span class="nexus-nav-label">
+                    Tableau de bord
+                </span>
+            </a>
 
         </div>
 
 
-        <!-- NAVIGATION -->
+        <!-- =================================================
+             GESTION
+        ================================================== -->
 
-        <nav class="nexus-nav">
+        <div class="nexus-nav-section">
 
-
-            <!-- =================================================
-                 PRINCIPAL
-            ================================================== -->
-
-            <div class="nexus-nav-section">
-
-                <div class="nexus-nav-title">
-                    Principal
-                </div>
-
-                <a
-                    href="{{ url_for('dashboard') }}"
-                    class="nexus-nav-link
-                    {% if request.endpoint in ['dashboard', 'dashboard_alias'] %}
-                        active
-                    {% endif %}"
-                >
-
-                    <span class="nexus-nav-icon">
-                        ⌂
-                    </span>
-
-                    <span class="nexus-nav-label">
-                        Dashboard
-                    </span>
-
-                </a>
-
+            <div class="nexus-nav-title">
+                Gestion
             </div>
 
-
-            <!-- =================================================
-                 COMMERCE
-            ================================================== -->
-
-            <div class="nexus-nav-section">
-
-                <div class="nexus-nav-title">
-                    Commerce
-                </div>
-
-
-                <!-- Produits -->
-
-                <a
-                    href="{{ url_for('products') }}"
-                    class="nexus-nav-link
-                    {% if request.endpoint == 'products' %}
-                        active
-                    {% endif %}"
-                >
-
-                    <span class="nexus-nav-icon">
-                        ▣
-                    </span>
-
-                    <span class="nexus-nav-label">
-                        Produits
-                    </span>
-
-                </a>
-
-
-                <!-- Ventes -->
-
-                <a
-                    href="{{ url_for('sales') }}"
-                    class="nexus-nav-link
-                    {% if request.endpoint == 'sales' %}
-                        active
-                    {% endif %}"
-                >
-
-                    <span class="nexus-nav-icon">
-                        ↗
-                    </span>
-
-                    <span class="nexus-nav-label">
-                        Ventes
-                    </span>
-
-                </a>
-
-
-                <!-- Achats -->
-
-                <a
-                    href="{{ url_for('purchases') }}"
-                    class="nexus-nav-link
-                    {% if request.endpoint == 'purchases' %}
-                        active
-                    {% endif %}"
-                >
-
-                    <span class="nexus-nav-icon">
-                        ↙
-                    </span>
-
-                    <span class="nexus-nav-label">
-                        Achats
-                    </span>
-
-                </a>
-
-
-                <!-- Stock -->
-
-                <a
-                    href="{{ url_for('stock') }}"
-                    class="nexus-nav-link
-                    {% if request.endpoint in ['stock', 'stock_movement'] %}
-                        active
-                    {% endif %}"
-                >
-
-                    <span class="nexus-nav-icon">
-                        ▤
-                    </span>
-
-                    <span class="nexus-nav-label">
-                        Stock
-                    </span>
-
-                </a>
-
-
-                <!-- =================================================
-                     NEXUS PRIX
-                ================================================== -->
-
-                <a
-                    href="{{ url_for('nexus_prix') }}"
-                    class="nexus-nav-link nexus-price-link
-                    {% if request.endpoint == 'nexus_prix' %}
-                        active
-                    {% endif %}"
-                >
-
-                    <span class="nexus-nav-icon">
-                        💰
-                    </span>
-
-                    <span class="nexus-nav-label">
-                        Nexus Prix
-                    </span>
-
-                </a>
-
-
-                <!-- =================================================
-                     SIMULATEUR BUSINESS
-                ================================================== -->
-
-                <a
-                    href="{{ url_for('nexus_simulateur') }}"
-                    class="nexus-nav-link nexus-simulator-link
-                    {% if request.endpoint == 'nexus_simulateur' %}
-                        active
-                    {% endif %}"
-                >
-
-                    <span class="nexus-nav-icon">
-                        📊
-                    </span>
-
-                    <span class="nexus-nav-label">
-                        Simulateur Business
-                    </span>
-
-                </a>
-
-            </div>
-
-
-            <!-- =================================================
-                 GESTION
-            ================================================== -->
-
-            <div class="nexus-nav-section">
-
-                <div class="nexus-nav-title">
-                    Gestion
-                </div>
-
-
-                <!-- Clients -->
-
-                <a
-                    href="{{ url_for('customers') }}"
-                    class="nexus-nav-link
-                    {% if request.endpoint in ['customers', 'edit_customer'] %}
-                        active
-                    {% endif %}"
-                >
-
-                    <span class="nexus-nav-icon">
-                        ♙
-                    </span>
-
-                    <span class="nexus-nav-label">
-                        Clients
-                    </span>
-
-                </a>
-
-
-                <!-- Factures -->
-
-                <a
-                    href="{{ url_for('invoices') }}"
-                    class="nexus-nav-link
-                    {% if request.endpoint in [
-                        'invoices',
-                        'invoice_detail',
-                        'invoice_detail_old',
-                        'mark_invoice_paid',
-                        'mark_invoice_paid_alias'
-                    ] %}
-                        active
-                    {% endif %}"
-                >
-
-                    <span class="nexus-nav-icon">
-                        ▤
-                    </span>
-
-                    <span class="nexus-nav-label">
-                        Factures
-                    </span>
-
-                </a>
-
-
-                <!-- Dépenses -->
-
-                <a
-                    href="{{ url_for('expenses') }}"
-                    class="nexus-nav-link
-                    {% if request.endpoint == 'expenses' %}
-                        active
-                    {% endif %}"
-                >
-
-                    <span class="nexus-nav-icon">
-                        ₣
-                    </span>
-
-                    <span class="nexus-nav-label">
-                        Dépenses
-                    </span>
-
-                </a>
-
-            </div>
-
-
-            <!-- =================================================
-                 INTELLIGENCE
-            ================================================== -->
-
-            <div class="nexus-nav-section">
-
-                <div class="nexus-nav-title">
-                    Intelligence
-                </div>
-
-
-                <!-- Nexus Intelligence -->
-
-                <a
-                    href="{{ url_for('intelligence') }}"
-                    class="nexus-nav-link nexus-intelligence-link
-                    {% if request.endpoint == 'intelligence' %}
-                        active
-                    {% endif %}"
-                >
-
-                    <span class="nexus-nav-icon">
-                        ✦
-                    </span>
-
-                    <span class="nexus-nav-label">
-                        Nexus Intelligence
-                    </span>
-
-                </a>
-
-            </div>
-
-
-        </nav>
-
-
-        <!-- =====================================================
-             UTILISATEUR
-        ====================================================== -->
-
-        <div class="nexus-sidebar-footer">
-
-            <div class="nexus-user">
-
-                <div class="nexus-avatar">
-
-                    {% if current_user %}
-
-                        {{
-                            (
-                                current_user.full_name
-                                or current_user.username
-                                or 'N'
-                            )[0]
-                            | upper
-                        }}
-
-                    {% else %}
-
-                        N
-
-                    {% endif %}
-
-                </div>
-
-
-                <div class="nexus-user-info">
-
-                    <div class="nexus-user-name">
-
-                        {% if current_user %}
-
-                            {{
-                                current_user.full_name
-                                or current_user.username
-                            }}
-
-                        {% else %}
-
-                            Nexus
-
-                        {% endif %}
-
-                    </div>
-
-
-                    <div class="nexus-user-role">
-
-                        {% if current_user %}
-
-                            {{
-                                current_user.role
-                                or 'Utilisateur'
-                            }}
-
-                        {% else %}
-
-                            Gestion
-
-                        {% endif %}
-
-                    </div>
-
-                </div>
-
-
-                {% if is_logged_in %}
-
-                    <a
-                        href="{{ url_for('logout') }}"
-                        class="nexus-logout"
-                        title="Déconnexion"
-                    >
-
-                        ⎋
-
-                    </a>
-
-                {% endif %}
-
-            </div>
+            <a
+                href="{{ url_for('products') }}"
+                class="nexus-nav-link
+                {% if request.endpoint == 'products' %}active{% endif %}"
+            >
+                <span class="nexus-nav-icon">📦</span>
+                <span class="nexus-nav-label">
+                    Produits
+                </span>
+            </a>
+
+
+            <a
+                href="{{ url_for('sales') }}"
+                class="nexus-nav-link
+                {% if request.endpoint == 'sales' %}active{% endif %}"
+            >
+                <span class="nexus-nav-icon">💰</span>
+                <span class="nexus-nav-label">
+                    Ventes
+                </span>
+            </a>
+
+
+            <a
+                href="{{ url_for('purchases') }}"
+                class="nexus-nav-link
+                {% if request.endpoint == 'purchases' %}active{% endif %}"
+            >
+                <span class="nexus-nav-icon">🛒</span>
+                <span class="nexus-nav-label">
+                    Achats
+                </span>
+            </a>
+
+
+            <a
+                href="{{ url_for('stock') }}"
+                class="nexus-nav-link
+                {% if request.endpoint == 'stock' %}active{% endif %}"
+            >
+                <span class="nexus-nav-icon">📊</span>
+                <span class="nexus-nav-label">
+                    Stock
+                </span>
+            </a>
+
+
+            <a
+                href="{{ url_for('customers') }}"
+                class="nexus-nav-link
+                {% if request.endpoint == 'customers' %}active{% endif %}"
+            >
+                <span class="nexus-nav-icon">👥</span>
+                <span class="nexus-nav-label">
+                    Clients
+                </span>
+            </a>
+
+
+            <a
+                href="{{ url_for('invoices') }}"
+                class="nexus-nav-link
+                {% if request.endpoint == 'invoices' %}active{% endif %}"
+            >
+                <span class="nexus-nav-icon">🧾</span>
+                <span class="nexus-nav-label">
+                    Factures
+                </span>
+            </a>
+
+
+            <a
+                href="{{ url_for('expenses') }}"
+                class="nexus-nav-link
+                {% if request.endpoint == 'expenses' %}active{% endif %}"
+            >
+                <span class="nexus-nav-icon">💸</span>
+                <span class="nexus-nav-label">
+                    Dépenses
+                </span>
+            </a>
 
         </div>
 
-    </aside>
+
+        <!-- =================================================
+             INTELLIGENCE
+        ================================================== -->
+
+        <div class="nexus-nav-section">
+
+            <div class="nexus-nav-title">
+                Intelligence
+            </div>
 
 
-    <!-- =========================================================
-         MOBILE OVERLAY
-    ========================================================= -->
+            <!-- NEXUS PRIX -->
 
-    <div
-        class="nexus-overlay"
-        id="nexusOverlay"
-        onclick="closeNexusSidebar()"
-    ></div>
+            <a
+                href="{{ url_for('nexus_prix') }}"
+                class="nexus-nav-link nexus-price-link
+                {% if request.endpoint == 'nexus_prix' %}active{% endif %}"
+            >
+                <span class="nexus-nav-icon">💎</span>
 
-
-    <!-- =========================================================
-         MAIN
-    ========================================================= -->
-
-    <main class="nexus-main">
+                <span class="nexus-nav-label">
+                    Nexus Prix
+                </span>
+            </a>
 
 
-        <!-- =====================================================
-             TOPBAR
-        ====================================================== -->
+            <!-- SIMULATEUR -->
 
-        <header class="nexus-topbar">
+            <a
+                href="{{ url_for('nexus_simulateur') }}"
+                class="nexus-nav-link nexus-simulator-link
+                {% if request.endpoint == 'nexus_simulateur' %}active{% endif %}"
+            >
+                <span class="nexus-nav-icon">🧮</span>
+
+                <span class="nexus-nav-label">
+                    Simulateur Business
+                </span>
+            </a>
 
 
-            <!-- Mobile menu -->
+            <!-- NEXUS INTELLIGENCE -->
+
+            <a
+                href="{{ url_for('intelligence') }}"
+                class="nexus-nav-link nexus-intelligence-link
+                {% if request.endpoint == 'intelligence' %}active{% endif %}"
+            >
+                <span class="nexus-nav-icon">✦</span>
+
+                <span class="nexus-nav-label">
+                    Nexus Intelligence
+                </span>
+            </a>
+
+
+            <!-- =================================================
+                 NEXUS GRAPHIQUE
+            ================================================== -->
+
+            <a
+                href="{{ url_for('nexus_graphique') }}"
+                class="nexus-nav-link nexus-graphique-link
+                {% if request.endpoint == 'nexus_graphique' %}active{% endif %}"
+            >
+                <span class="nexus-nav-icon">📈</span>
+
+                <span class="nexus-nav-label">
+                    Nexus Graphique
+                </span>
+            </a>
+
+
+            <!-- NEXUS NOTATION -->
+
+            <a
+                href="{{ url_for('notation') }}"
+                class="nexus-nav-link nexus-notation-link
+                {% if request.endpoint == 'notation' %}active{% endif %}"
+            >
+                <span class="nexus-nav-icon">⭐</span>
+
+                <span class="nexus-nav-label">
+                    Nexus Notation
+                </span>
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <!-- =====================================================
+         USER
+    ====================================================== -->
+
+    {% if is_logged_in %}
+
+    <div class="nexus-sidebar-footer">
+
+        <div class="nexus-user-box">
+
+            <div class="nexus-user-avatar">
+                {{ current_user.username[0]|upper }}
+            </div>
+
+            <div class="nexus-user-info">
+
+                <div class="nexus-user-name">
+                    {{ current_user.full_name or current_user.username }}
+                </div>
+
+                <div class="nexus-user-role">
+                    {{ current_user.role|default('Utilisateur') }}
+                </div>
+
+            </div>
+
+            <a
+                href="{{ url_for('logout') }}"
+                class="nexus-logout"
+                title="Déconnexion"
+            >
+                ⎋
+            </a>
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+</aside>
+
+
+<!-- =========================================================
+     MAIN
+========================================================= -->
+
+<main class="nexus-main">
+
+
+    <!-- =====================================================
+         TOPBAR
+    ====================================================== -->
+
+    <header class="nexus-topbar">
+
+        <div class="nexus-topbar-left">
 
             <button
-                class="nexus-mobile-menu"
                 type="button"
+                class="nexus-menu-button"
                 onclick="toggleNexusSidebar()"
                 aria-label="Ouvrir le menu"
             >
@@ -1350,399 +895,212 @@
             </button>
 
 
-            <!-- Titre -->
-
             <div class="nexus-page-heading">
 
-                <h1 class="nexus-page-title">
-
+                <h1>
                     {% block page_title %}
-
-                        Nexus Gestion
-
+                    Nexus Gestion
                     {% endblock %}
-
                 </h1>
 
-
-                <div class="nexus-page-subtitle">
-
+                <p>
                     {% block page_subtitle %}
-
-                        Pilotez votre activité depuis un seul espace.
-
+                    Pilotez votre activité avec précision.
                     {% endblock %}
-
-                </div>
-
-            </div>
-
-
-            <!-- Actions topbar -->
-
-            <div class="nexus-top-actions">
-
-
-                <!-- Stock -->
-
-                <a
-                    href="{{ url_for('stock') }}"
-                    class="nexus-top-action hide-mobile"
-                    title="Stock"
-                >
-
-                    ▤
-
-                </a>
-
-
-                <!-- Nexus Prix -->
-
-                <a
-                    href="{{ url_for('nexus_prix') }}"
-                    class="nexus-top-action hide-mobile"
-                    title="Nexus Prix"
-                >
-
-                    💰
-
-                </a>
-
-
-                <!-- Simulateur -->
-
-                <a
-                    href="{{ url_for('nexus_simulateur') }}"
-                    class="nexus-top-action hide-mobile"
-                    title="Simulateur Business"
-                >
-
-                    📊
-
-                </a>
-
-
-                <!-- Intelligence -->
-
-                <a
-                    href="{{ url_for('intelligence') }}"
-                    class="nexus-top-action"
-                    title="Nexus Intelligence"
-                >
-
-                    ✦
-
-                </a>
+                </p>
 
             </div>
 
-        </header>
+        </div>
 
+    </header>
 
-        <!-- =====================================================
-             CONTENT
-        ====================================================== -->
 
-        <section class="nexus-content">
+    <!-- =====================================================
+         CONTENT
+    ====================================================== -->
 
+    <div class="nexus-content">
 
-            <!-- =================================================
-                 QUICK ACTIONS
-            ================================================== -->
 
-            <div class="nexus-quick-actions">
+        <!-- =================================================
+             QUICK ACTIONS
+        ================================================== -->
 
+        <div class="nexus-quick-actions">
 
-                <!-- Produits -->
+            <a
+                href="{{ url_for('products') }}"
+                class="nexus-quick-action"
+            >
+                📦 Produits
+            </a>
 
-                <a
-                    href="{{ url_for('products') }}"
-                    class="nexus-quick-action"
-                >
 
-                    <span>
-                        ▣
-                    </span>
+            <a
+                href="{{ url_for('sales') }}"
+                class="nexus-quick-action"
+            >
+                💰 Vente
+            </a>
 
-                    Produits
 
-                </a>
+            <a
+                href="{{ url_for('purchases') }}"
+                class="nexus-quick-action"
+            >
+                🛒 Achat
+            </a>
 
 
-                <!-- Nouvelle vente -->
+            <a
+                href="{{ url_for('stock') }}"
+                class="nexus-quick-action"
+            >
+                📊 Stock
+            </a>
 
-                <a
-                    href="{{ url_for('sales') }}"
-                    class="nexus-quick-action nexus-quick-primary"
-                >
 
-                    <span>
-                        ＋
-                    </span>
+            <a
+                href="{{ url_for('nexus_prix') }}"
+                class="nexus-quick-action"
+            >
+                💎 Nexus Prix
+            </a>
 
-                    Nouvelle vente
 
-                </a>
+            <a
+                href="{{ url_for('nexus_simulateur') }}"
+                class="nexus-quick-action"
+            >
+                🧮 Simulateur
+            </a>
 
 
-                <!-- Nouvel achat -->
+            <a
+                href="{{ url_for('customers') }}"
+                class="nexus-quick-action"
+            >
+                👥 Clients
+            </a>
 
-                <a
-                    href="{{ url_for('purchases') }}"
-                    class="nexus-quick-action"
-                >
 
-                    <span>
-                        ↙
-                    </span>
+            <a
+                href="{{ url_for('invoices') }}"
+                class="nexus-quick-action"
+            >
+                🧾 Factures
+            </a>
 
-                    Nouvel achat
 
-                </a>
+            <a
+                href="{{ url_for('intelligence') }}"
+                class="nexus-quick-action"
+            >
+                ✦ Intelligence
+            </a>
 
 
-                <!-- Stock -->
+            <!-- NOUVEAU -->
 
-                <a
-                    href="{{ url_for('stock') }}"
-                    class="nexus-quick-action"
-                >
+            <a
+                href="{{ url_for('nexus_graphique') }}"
+                class="nexus-quick-action"
+            >
+                📈 Graphique
+            </a>
 
-                    <span>
-                        ▤
-                    </span>
 
-                    Stock
+            <a
+                href="{{ url_for('notation') }}"
+                class="nexus-quick-action"
+            >
+                ⭐ Notation
+            </a>
 
-                </a>
+        </div>
 
 
-                <!-- Nexus Prix -->
+        <!-- =================================================
+             FLASH
+        ================================================== -->
 
-                <a
-                    href="{{ url_for('nexus_prix') }}"
-                    class="nexus-quick-action nexus-quick-price"
-                >
+        <div class="nexus-flashes">
 
-                    <span>
-                        💰
-                    </span>
-
-                    Nexus Prix
-
-                </a>
-
-
-                <!-- Simulateur Business -->
-
-                <a
-                    href="{{ url_for('nexus_simulateur') }}"
-                    class="nexus-quick-action nexus-quick-simulator"
-                >
-
-                    <span>
-                        📊
-                    </span>
-
-                    Simulateur
-
-                </a>
-
-
-                <!-- Clients -->
-
-                <a
-                    href="{{ url_for('customers') }}"
-                    class="nexus-quick-action"
-                >
-
-                    <span>
-                        ♙
-                    </span>
-
-                    Clients
-
-                </a>
-
-
-                <!-- Factures -->
-
-                <a
-                    href="{{ url_for('invoices') }}"
-                    class="nexus-quick-action"
-                >
-
-                    <span>
-                        ▤
-                    </span>
-
-                    Factures
-
-                </a>
-
-
-                <!-- Intelligence -->
-
-                <a
-                    href="{{ url_for('intelligence') }}"
-                    class="nexus-quick-action"
-                >
-
-                    <span>
-                        ✦
-                    </span>
-
-                    Intelligence
-
-                </a>
-
-            </div>
-
-
-            <!-- =================================================
-                 FLASH MESSAGES
-            ================================================== -->
-
-            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% with messages = get_flashed_messages(
+                with_categories=true
+            ) %}
 
                 {% if messages %}
 
-                    <div class="nexus-flashes">
+                    {% for category, message in messages %}
 
-                        {% for category, message in messages %}
+                        <div
+                            class="nexus-flash {{ category }}"
+                        >
+                            {{ message }}
+                        </div>
 
-                            <div
-                                class="nexus-flash
-                                {{ category or 'info' }}"
-                            >
-
-                                <span>
-                                    ●
-                                </span>
-
-                                <span>
-                                    {{ message }}
-                                </span>
-
-                            </div>
-
-                        {% endfor %}
-
-                    </div>
+                    {% endfor %}
 
                 {% endif %}
 
             {% endwith %}
 
-
-            <!-- =================================================
-                 CONTENU DE LA PAGE
-            ================================================== -->
-
-            {% block content %}
-
-            {% endblock %}
-
-        </section>
-
-    </main>
-
-</div>
+        </div>
 
 
-<!-- =============================================================
+        <!-- =================================================
+             PAGE CONTENT
+        ================================================== -->
+
+        {% block content %}
+        {% endblock %}
+
+    </div>
+
+</main>
+
+
+<!-- =========================================================
      JAVASCRIPT
-============================================================= -->
+========================================================= -->
 
 <script>
 
     function toggleNexusSidebar() {
 
         const sidebar =
-            document.getElementById(
-                "nexusSidebar"
-            );
+            document.getElementById("nexusSidebar");
 
         const overlay =
-            document.getElementById(
-                "nexusOverlay"
-            );
+            document.getElementById("nexusOverlay");
 
         sidebar.classList.toggle("open");
 
-        overlay.classList.toggle("active");
+        overlay.classList.toggle("open");
     }
 
 
     function closeNexusSidebar() {
 
         const sidebar =
-            document.getElementById(
-                "nexusSidebar"
-            );
+            document.getElementById("nexusSidebar");
 
         const overlay =
-            document.getElementById(
-                "nexusOverlay"
-            );
+            document.getElementById("nexusOverlay");
 
         sidebar.classList.remove("open");
 
-        overlay.classList.remove("active");
+        overlay.classList.remove("open");
     }
 
 
-    /*
-     * Fermer automatiquement la sidebar
-     * sur mobile après sélection.
-     */
-
-    document.addEventListener(
-        "DOMContentLoaded",
-        function () {
-
-            const links =
-                document.querySelectorAll(
-                    ".nexus-nav-link"
-                );
-
-            links.forEach(
-                function (link) {
-
-                    link.addEventListener(
-                        "click",
-                        function () {
-
-                            if (
-                                window.innerWidth
-                                <= 800
-                            ) {
-
-                                closeNexusSidebar();
-
-                            }
-
-                        }
-                    );
-
-                }
-            );
-
-        }
-    );
-
-
-    /*
-     * Fermer avec ESC.
-     */
-
     document.addEventListener(
         "keydown",
-        function (event) {
+        function(event) {
 
-            if (
-                event.key === "Escape"
-            ) {
+            if (event.key === "Escape") {
 
                 closeNexusSidebar();
 
@@ -1751,12 +1109,35 @@
         }
     );
 
+
+    /*
+       Fermer automatiquement le menu mobile
+       lorsqu'un lien est sélectionné.
+    */
+
+    document.querySelectorAll(
+        ".nexus-sidebar a"
+    ).forEach(function(link) {
+
+        link.addEventListener(
+            "click",
+            function() {
+
+                if (window.innerWidth <= 900) {
+                    closeNexusSidebar();
+                }
+
+            }
+        );
+
+    });
+
 </script>
 
 
 {% block scripts %}
-
 {% endblock %}
 
 </body>
 </html>
+
